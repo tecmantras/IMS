@@ -9,9 +9,9 @@ namespace UserManagement.Services.Repositories
 {
     public class AccountService : IAccountService
     {
-        public Task<object> GetAllUserAsync()
+        public async Task<object> GetAllUserAsync()
         {
-            throw new NotImplementedException();
+            return true;
         }
     }
 }
