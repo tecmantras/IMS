@@ -39,5 +39,9 @@ namespace UserManagememet.Data.Model
         public string? UserToken { get; set; }
         [ForeignKey("DepartmentId")]
         public virtual Department? Department { get; set; }
+
+        public virtual ICollection<AssignUser> Users { get; set; }
+        public virtual ICollection<AssignUser> AssignedManager { get; set; }
+        public virtual ICollection<AssignUser>? AssignedHr { get; set; }
     }
 }
