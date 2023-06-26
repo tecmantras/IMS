@@ -32,7 +32,7 @@ namespace UserManagememet.Data.ViewModel
         public DateTime DOB { get; set; }
         public DateTime JoiningDate { get; set; }
         public int? DepartmentId { get; set; }
-        public string AssignedManagerId { get; set; }
+        public string? AssignedManagerId { get; set; }
         public string? AssignedHrId { get; set; }
     }
 

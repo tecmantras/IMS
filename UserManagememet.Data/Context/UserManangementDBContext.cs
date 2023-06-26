@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,6 +26,16 @@ namespace UserManagememet.Data.Context
         {
            
             base.OnConfiguring(optionsBuilder);
+        }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<AssignUser>()
+               .HasOne(x => x.AssignedHr).WithMany(t => t.AssignedHr).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<AssignUser>()
+                .HasOne(x => x.AssignedManager).WithMany(t => t.AssignedManager).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<AssignUser>()
+                .HasOne(x => x.User).WithMany(t => t.Users).OnDelete(DeleteBehavior.Restrict);
+            base.OnModelCreating(modelBuilder);
         }
         public override int SaveChanges()
         {

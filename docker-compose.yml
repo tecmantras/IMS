@@ -1,0 +1,39 @@
+version: '3.4'
+
+networks:
+  backend:
+services:
+  usermanagerdb:
+       container_name: user-db
+       image: mcr.microsoft.com/mssql/server:2022-latest
+       environment:
+            - ACCEPT_EULA=Y
+            - SA_PASSWORD=Test@123
+       networks:
+        backend:
+       ports:
+        - 8001:1433
+  usermanagement.api:
+    container_name: user-api
+    image: ${DOCKER_REGISTRY-}usermanagementapi
+    build:
+      context: .
+      dockerfile: UserManagement.API/Dockerfile
+    networks:
+      backend:
+    ports:
+         - 8002:80
+    environment:
+        - DB_HOST=dbazureserver
+        - DB_NAME=EmployeeManagementDB
+        - DB_SA_PASSWORD=Test@123
+  apigateway:
+    container_name: api-gateway
+    image: ${DOCKER_REGISTRY-}apigateway
+    build:
+      context: .
+      dockerfile: ApiGateway/Dockerfile
+    ports:
+        - 8003:80
+    networks:
+        - backend

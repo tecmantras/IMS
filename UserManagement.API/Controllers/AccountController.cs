@@ -13,15 +13,17 @@ namespace UserManagement.API.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IAccountService _accountService;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<User> _userManager;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IRepository<AssignUser> _assignUserRepository;
 
-        public AccountController(IAccountService accountService, UserManager<IdentityUser> userManager, IUnitOfWork unitOfWork)
+        public AccountController(IAccountService accountService, UserManager<User> userManager, IUnitOfWork unitOfWork, RoleManager<IdentityRole> roleManager)
         {
             _accountService = accountService;
             _userManager = userManager;
             _unitOfWork = unitOfWork;
+            _roleManager = roleManager;
             _assignUserRepository = _unitOfWork.GetRepository<AssignUser>();
         }
         [HttpPost("InsertRole")]
@@ -29,8 +31,13 @@ namespace UserManagement.API.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await _accountService.CreateRoleAsync(model);
-                if(result == true)
+                // var result = await _accountService.CreateRoleAsync(model);
+                IdentityRole identityRole = new IdentityRole
+                {
+                    Name = model.RoleName
+                };
+                var result = await _roleManager.CreateAsync(identityRole);
+                if (result.Succeeded == true)
                 {
                     return new OkObjectResult(new { succeded = true, model });
                 }
@@ -48,7 +55,7 @@ namespace UserManagement.API.Controllers
         [HttpPost("InsertUser")]
         public async Task<IActionResult> CreateUserAsync(RegisterViewModel model)
         {
-            if(ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 var user = new User
                 {
@@ -79,12 +86,34 @@ namespace UserManagement.API.Controllers
                         };
                         _ = _assignUserRepository.Add(assignUser);
                         var assignResult = _unitOfWork.commit();
-                        
+
                     }
-                    return new OkObjectResult(new {succeded = result, model });
+                    return new OkObjectResult(new { succeded = result, model });
                 }
             }
-            return new OkObjectResult(new {succeeded = false});
+            return new OkObjectResult(new { succeeded = false });
+        }
+
+        [HttpGet("GetAllUser")]
+        public async Task<IActionResult> GetAllUserAsync()
+        {
+            try
+            {
+                var result = await _accountService.GetAllUserAsync();
+                if (result.Any())
+                {
+                    return new OkObjectResult(new { Succeeded = true ,result}) ;
+                }
+                else
+                {
+                    return new OkObjectResult(new { Succeeded = false });
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
     }
 }

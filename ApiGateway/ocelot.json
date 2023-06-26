@@ -1,0 +1,32 @@
+{
+  "Routes": [
+    {
+      "UpstreamPathTemplate": "/api/Department",
+      "UpstreamHttpMethod": [ "Get", "Post", "Put" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "usermanagement.api",
+          "Port": 80
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Department"
+
+    },
+    {
+      "UpstreamPathTemplate": "/api/Account/GetAllUser",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "usermanagement.api",
+          "Port": 80
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Account/GetAllUser"
+    }
+  ],
+  "GlobalConfiguration": {
+    "BaseUrl": "https://localhost:8003"
+  }
+}
