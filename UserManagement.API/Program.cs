@@ -29,6 +29,11 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
 }).AddEntityFrameworkStores<UserManangementDBContext>()
             .AddDefaultTokenProviders();
 
+//var dbhost = Environment.GetEnvironmentVariable("DB_HOST");
+//var dbName = Environment.GetEnvironmentVariable("DB_NAME");
+//var dbPassword = Environment.GetEnvironmentVariable("DB_SA_PASSWORD");
+//var connectionstring = $"Data Source={dbhost};Initial Catalog={dbName};User ID=sa;Password={dbPassword};Trusted_Connection=False; Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+//builder.Services.AddDbContext<UserManangementDBContext>(option =>option.UseSqlServer(connectionstring));
 
 builder.Services.AddDbContext<UserManangementDBContext>(option =>
 {

@@ -9,8 +9,7 @@ namespace UserManagement.Services.IRepositories
 {
     public interface IAccountService
     {
-        Task<object> GetAllUserAsync();
-        Task<bool> CreateRoleAsync(RoleViewModel model);
+        Task<List<UserResponseViewModel>> GetAllUserAsync();
 
     }
 }
