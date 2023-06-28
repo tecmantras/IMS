@@ -23,7 +23,19 @@
           "Port": 80
         }
       ],
-      "DownstreamPathTemplate": "/api/Account/GetAllUser"
+      "DownstreamPathTemplate": "/api/Account/GetAllUser" 
+    },
+    {
+      "UpstreamPathTemplate": "/api/Account/GetUser/{Email}",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "usermanagement.api",
+          "Port": 80
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Account/GetUser/{Email}"
     }
   ],
   "GlobalConfiguration": {
