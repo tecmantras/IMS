@@ -14,17 +14,19 @@ namespace UserManagement.API.Controllers
     {
         private readonly IAccountService _accountService;
         private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager;
         private readonly IUnitOfWork _unitOfWork;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IRepository<AssignUser> _assignUserRepository;
 
-        public AccountController(IAccountService accountService, UserManager<User> userManager, IUnitOfWork unitOfWork, RoleManager<IdentityRole> roleManager)
+        public AccountController(IAccountService accountService, UserManager<User> userManager, IUnitOfWork unitOfWork, RoleManager<IdentityRole> roleManager, SignInManager<User> signInManager)
         {
             _accountService = accountService;
             _userManager = userManager;
             _unitOfWork = unitOfWork;
             _roleManager = roleManager;
             _assignUserRepository = _unitOfWork.GetRepository<AssignUser>();
+            _signInManager = signInManager;
         }
         [HttpPost("InsertRole")]
         public async Task<IActionResult> CreateRoleAsync(RoleViewModel model)
@@ -53,7 +55,7 @@ namespace UserManagement.API.Controllers
         }
 
         [HttpPost("InsertUser")]
-        public async Task<IActionResult> CreateUserAsync(RegisterViewModel model)
+        public async Task<IActionResult> CreateUserAsync([FromBody]RegisterViewModel model)
         {
             if (ModelState.IsValid)
             {
@@ -72,7 +74,7 @@ namespace UserManagement.API.Controllers
                     EmailConfirmed = true,
                     PhoneNumberConfirmed = true,
                 };
-                var result = await _userManager.CreateAsync(user);
+                var result = await _userManager.CreateAsync(user,model.Password);
                 if (result.Succeeded == true)
                 {
                     _ = await _userManager.AddToRoleAsync(user, model.Role);
@@ -92,6 +94,25 @@ namespace UserManagement.API.Controllers
                 }
             }
             return new OkObjectResult(new { succeeded = false });
+        }
+        [HttpPost("Authenticate")]
+        public async Task<IActionResult> Authenticate([FromBody] LoginViewModel model)
+        {
+            try
+            {
+                var result = await _signInManager.PasswordSignInAsync(model.UserName, model.Password, false, false);
+                if (result.Succeeded)
+                {
+                    var user = await _accountService.GetByEmailUserAsync(model.UserName);
+                    return new OkObjectResult(new { IsValid = true, user });
+                }
+                return new OkObjectResult(new { IsValid = false });
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
 
         [HttpGet("GetAllUser")]
