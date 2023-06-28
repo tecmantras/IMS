@@ -63,4 +63,10 @@ namespace UserManagememet.Data.ViewModel
         public string? AssignedHrId { get; set; }
 
     }
+    public class LoginViewModel
+    {
+        public string UserName { get; set; }
+        public string Password { get; set; }
+    }
+
 }

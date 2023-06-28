@@ -36,6 +36,30 @@
         }
       ],
       "DownstreamPathTemplate": "/api/Account/GetUser/{Email}"
+    },
+    {
+      "UpstreamPathTemplate": "/api/Account/Authenticate",
+      "UpstreamHttpMethod": [ "post" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "usermanagement.api",
+          "Port": 80
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Account/Authenticate"
+    },
+    {
+      "UpstreamPathTemplate": "/api/Account/InsertUser",
+      "UpstreamHttpMethod": [ "post" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "usermanagement.api",
+          "Port": 80
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Account/InsertUser"
     }
   ],
   "GlobalConfiguration": {
