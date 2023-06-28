@@ -102,7 +102,28 @@ namespace UserManagement.API.Controllers
                 var result = await _accountService.GetAllUserAsync();
                 if (result.Any())
                 {
-                    return new OkObjectResult(new { Succeeded = true ,result}) ;
+                    return new OkObjectResult(new { Succeeded = true, result });
+                }
+                else
+                {
+                    return new OkObjectResult(new { Succeeded = false });
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        [HttpGet("GetUser/{Email}")]
+        public async Task<IActionResult> GetByEmailUser(string Email)
+        {
+            try
+            {
+                var result = await _accountService.GetByEmailUserAsync(Email);
+                if (result != null)
+                {
+                    return new OkObjectResult(new { Succeeded = true, result });
                 }
                 else
                 {

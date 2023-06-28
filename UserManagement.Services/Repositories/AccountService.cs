@@ -72,5 +72,24 @@ namespace UserManagement.Services.Repositories
 
         }
 
+        public async Task<UserResponseViewModel> GetByEmailUserAsync(string Email)
+        {
+            // var user = _userRepository.GetAll().Include(x=>x.Department).Join().FirstOrDefaultAsync(x => x.Email == Email);
+            var users = await (from u in _userRepository.GetAll().Include(x => x.Department)
+                        join ur in _userRoleRepository.GetAll()
+                        on u.Id equals ur.UserId
+                        join r in _roleRepository.GetAll()
+                        on ur.RoleId equals r.Id
+                        select new UserResponseViewModel
+                        {
+                            UserId = u.Id,
+                            FirstName = u.FirstName,
+                            LastName = u.LastName,
+                            Email = u.Email,
+                            Role = r.Name,
+                            Department = u.Department.Name,
+                        }).Where(x=>x.Email == Email).FirstOrDefaultAsync();
+            return  users;
+        }
     }
 }

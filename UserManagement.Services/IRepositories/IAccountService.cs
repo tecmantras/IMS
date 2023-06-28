@@ -10,6 +10,7 @@ namespace UserManagement.Services.IRepositories
     public interface IAccountService
     {
         Task<List<UserResponseViewModel>> GetAllUserAsync();
+        Task<UserResponseViewModel> GetByEmailUserAsync(string Email);
 
     }
 }
