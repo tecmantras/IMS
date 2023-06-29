@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using UserManagememet.Data.Interface;
@@ -96,7 +97,7 @@ namespace UserManagement.API.Controllers
             return new OkObjectResult(new { succeeded = false });
         }
         [HttpPost("Authenticate")]
-        public async Task<IActionResult> Authenticate([FromBody] LoginViewModel model)
+        public async Task<IActionResult> Authenticate(LoginViewModel model)
         {
             try
             {
@@ -104,9 +105,9 @@ namespace UserManagement.API.Controllers
                 if (result.Succeeded)
                 {
                     var user = await _accountService.GetByEmailUserAsync(model.UserName);
-                    return new OkObjectResult(new { IsValid = true, user });
+                    return new OkObjectResult(user);
                 }
-                return new OkObjectResult(new { IsValid = false });
+                return new OkObjectResult(false);
             }
             catch (Exception)
             {
@@ -116,6 +117,7 @@ namespace UserManagement.API.Controllers
         }
 
         [HttpGet("GetAllUser")]
+        [Authorize]
         public async Task<IActionResult> GetAllUserAsync()
         {
             try

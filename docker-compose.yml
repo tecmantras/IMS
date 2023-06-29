@@ -37,3 +37,13 @@ services:
         - 8003:80
     networks:
         - backend
+
+  signinmanagement:
+    container_name: signinmanagement-api
+    image: ${DOCKER_REGISTRY-}signinmanagement
+    build:
+      context: .
+      dockerfile: SignInManagement/Dockerfile
+    networks:
+        - backend
+

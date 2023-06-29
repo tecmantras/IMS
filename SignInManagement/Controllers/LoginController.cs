@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SignInManagement.Data;
@@ -10,28 +11,28 @@ namespace SignInManagement.Controllers
     [ApiController]
     public class LoginController : ControllerBase
     {
-        private readonly SignInManager<User> _signInManager;
         private readonly UserDetailService _userDetail;
 
-        public LoginController(SignInManager<User> signInManager,UserDetailService userDetail)
+        public LoginController(UserDetailService userDetail)
         {
-            _signInManager = signInManager;
             _userDetail = userDetail;
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login(AuthenticationRequest request)
+        public  ActionResult<AuthenticationResponse> Authenticate(AuthenticationRequest request)
         {
-            var result = await _signInManager.PasswordSignInAsync(request.UserName,request.Password,false,false);
-            if (result.Succeeded)
+            try
             {
-                var user = await _userDetail.GetUserAsync(request.UserName);
-                if (user == null)
-                {
+                var AuthToken =  _userDetail.Authenticate(request).Result;
+                if (AuthToken == null) return Unauthorized();
 
-                }
+                return AuthToken;
             }
-            return new OkObjectResult(result);
+            catch (Exception)
+            {
+
+                throw;
+            }
 
         }
     }
