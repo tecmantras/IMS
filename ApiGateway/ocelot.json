@@ -1,5 +1,18 @@
 {
   "Routes": [
+    //Authenticate API
+    {
+      "UpstreamPathTemplate": "/api/Login",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "signinmanagement",
+          "Port": 80
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Login"
+    },
     {
       "UpstreamPathTemplate": "/api/Department",
       "UpstreamHttpMethod": [ "Get", "Post", "Put" ],
@@ -23,7 +36,7 @@
           "Port": 80
         }
       ],
-      "DownstreamPathTemplate": "/api/Account/GetAllUser" 
+      "DownstreamPathTemplate": "/api/Account/GetAllUser"
     },
     {
       "UpstreamPathTemplate": "/api/Account/GetUser/{Email}",

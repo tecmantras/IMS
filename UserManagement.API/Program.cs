@@ -7,6 +7,7 @@ using UserManagememet.Data.Interface;
 using UserManagememet.Data.Model;
 using UserManagement.Services.IRepositories;
 using UserManagement.Services.Repositories;
+using SignInManagement.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,6 +44,7 @@ builder.Services.AddDbContext<UserManangementDBContext>(option =>
 builder.Services.AddControllers().AddJsonOptions(x =>
                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 builder.Services.AddHttpContextAccessor();
+builder.Services.ADDCustomJwtAuthentication();
 builder.Services.AddSingleton(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped(typeof(IService<>), typeof(Service<>));
 builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
@@ -58,6 +60,7 @@ if (app.Environment.IsDevelopment())
 
 //app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
