@@ -27,6 +27,7 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireDigit = false;
     options.User.AllowedUserNameCharacters = string.Empty;
+    options.SignIn.RequireConfirmedEmail = true;
 }).AddEntityFrameworkStores<UserManangementDBContext>()
             .AddDefaultTokenProviders();
 
@@ -49,6 +50,7 @@ builder.Services.AddSingleton(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped(typeof(IService<>), typeof(Service<>));
 builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
 builder.Services.AddTransient<IAccountService, AccountService>();
+builder.Services.AddTransient<IEmailHelper, EmailHelper>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

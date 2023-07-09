@@ -2,10 +2,12 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using SignInManagement.Data.Model;
 using UserManagememet.Data.Interface;
 using UserManagememet.Data.Model;
 using UserManagememet.Data.ViewModel;
 using UserManagement.Services.IRepositories;
+using User = UserManagememet.Data.Model.User;
 
 namespace UserManagement.API.Controllers
 {
@@ -16,11 +18,13 @@ namespace UserManagement.API.Controllers
         private readonly IAccountService _accountService;
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
+        private readonly IEmailHelper _emailHelper;
         private readonly IUnitOfWork _unitOfWork;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IRepository<AssignUser> _assignUserRepository;
+        private readonly IConfiguration _configuration;
 
-        public AccountController(IAccountService accountService, UserManager<User> userManager, IUnitOfWork unitOfWork, RoleManager<IdentityRole> roleManager, SignInManager<User> signInManager)
+        public AccountController(IAccountService accountService, UserManager<User> userManager, IUnitOfWork unitOfWork, RoleManager<IdentityRole> roleManager, SignInManager<User> signInManager,IEmailHelper emailHelper, IConfiguration configuration)
         {
             _accountService = accountService;
             _userManager = userManager;
@@ -28,6 +32,8 @@ namespace UserManagement.API.Controllers
             _roleManager = roleManager;
             _assignUserRepository = _unitOfWork.GetRepository<AssignUser>();
             _signInManager = signInManager;
+            _emailHelper = emailHelper;
+            _configuration = configuration;
         }
         [HttpPost("InsertRole")]
         public async Task<IActionResult> CreateRoleAsync(RoleViewModel model)
@@ -72,7 +78,7 @@ namespace UserManagement.API.Controllers
                     JoiningDate = model.JoiningDate,
                     DOB = model.DOB,
                     DepartmentId = model.DepartmentId,
-                    EmailConfirmed = true,
+                    EmailConfirmed = false,
                     PhoneNumberConfirmed = true,
                 };
                 var result = await _userManager.CreateAsync(user,model.Password);
@@ -91,6 +97,15 @@ namespace UserManagement.API.Controllers
                         var assignResult = _unitOfWork.commit();
 
                     }
+                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var ocelotUrl = _configuration.GetValue<string>("Ocelot:BaseUrl");
+                    var confimationLink = $"{ocelotUrl}/api/Account/ConfirmEmail?token={Uri.EscapeDataString(token)}&email={user.Email}";
+                    ConfimEmailRequestViewModel confimEmailModel = new ConfimEmailRequestViewModel();
+                    confimEmailModel.UserEmail = user.Email;
+                    confimEmailModel.ConfirmEmailLink = confimationLink;
+                    confimEmailModel.UserPassword = model.Password;
+                    confimEmailModel.UserName = user.FirstName + " " + user.LastName;
+                        _= await _emailHelper.VerifyEmailAsync(confimEmailModel);
                     return new OkObjectResult(new { succeded = result, model });
                 }
             }
@@ -101,6 +116,14 @@ namespace UserManagement.API.Controllers
         {
             try
             {
+                var Modeluser = await _userManager.FindByEmailAsync(model.UserName);
+                if(Modeluser != null)
+                {
+                    if (!await _userManager.IsEmailConfirmedAsync(Modeluser))
+                    {
+                        return Unauthorized("Email not confirmed. Please confirm your email first.");
+                    }
+                }
                 var result = await _signInManager.PasswordSignInAsync(model.UserName, model.Password, false, false);
                 if (result.Succeeded)
                 {
@@ -159,5 +182,19 @@ namespace UserManagement.API.Controllers
                 throw;
             }
         }
-    }
+        [HttpGet("ConfirmEmail")]
+        public async Task<IActionResult> ConfirmEmail(string token, string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+                return new OkObjectResult(new { succcesdd = false,msg="User not Found" }) ;
+
+            var result = await _userManager.ConfirmEmailAsync(user, token);
+            if (result.Succeeded)
+            {
+                return new OkObjectResult(new { succcedd = true, msg = "Email is confirmed" });
+            }
+            return new OkObjectResult(new { succcesdd = false, msg = result.Errors});
+        }
+        }
 }

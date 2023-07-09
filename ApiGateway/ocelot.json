@@ -73,6 +73,18 @@
         }
       ],
       "DownstreamPathTemplate": "/api/Account/InsertUser"
+    },
+    {
+      "UpstreamPathTemplate": "/api/Account/ConfirmEmail",
+      "UpstreamHttpMethod": [ "get" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "usermanagement.api",
+          "Port": 80
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Account/ConfirmEmail"
     }
   ],
   "GlobalConfiguration": {
