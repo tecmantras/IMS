@@ -3,7 +3,12 @@ using SignInManagement.Data;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddCors(op =>
+{
+    op.AddPolicy("corspolicy", builder => builder.WithOrigins("*").AllowAnyMethod()
+    .AllowAnyHeader().AllowCredentials());
 
+});
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -20,7 +25,7 @@ if (app.Environment.IsDevelopment())
 }
 
 //app.UseHttpsRedirection();
-
+app.UseCors("corspolicy");
 app.UseAuthorization();
 
 app.MapControllers();
