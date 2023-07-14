@@ -68,5 +68,35 @@ namespace UserManagememet.Data.ViewModel
         public string UserName { get; set; }
         public string Password { get; set; }
     }
+    public class UserManagerViewModel
+    {
+        public string? UserId { get; set; }
+        public string Name { get; set; }
+        public string RoleId { get; set; }
+    }
+    public class ChangePasswordViewModel
+    {
+        [Required]
+        public string Email { get; set; }
+        [Required]
+        public string CurrentPassword { get; set; }
+
+        [Required]
+        [DataType(DataType.Password)]
+        [Display(Name = "Password")]
+        public string NewPassword { get; set; }
+    }
+    public class ForgotPasswordViewModel
+    {
+        [Required]
+        public string Email { get; set; }
+    }
+    public class ResetPasswordViewModel
+    {
+        [Required]
+        public string token { get; set; }
+        [Required]
+        public string NewPassword { get; set; }
+    }
 
 }

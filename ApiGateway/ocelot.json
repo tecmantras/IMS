@@ -75,6 +75,66 @@
       "DownstreamPathTemplate": "/api/Account/InsertUser"
     },
     {
+      "UpstreamPathTemplate": "/api/Account/InsertRole",
+      "UpstreamHttpMethod": [ "post" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "usermanagement.api",
+          "Port": 80
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Account/InsertRole"
+    },
+    {
+      "UpstreamPathTemplate": "/api/Account/GetAllRole",
+      "UpstreamHttpMethod": [ "get" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "usermanagement.api",
+          "Port": 80
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Account/GetAllRole"
+    },
+    {
+      "UpstreamPathTemplate": "/api/Account/GetManagerUserByManagerRoleId",
+      "UpstreamHttpMethod": [ "get" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "usermanagement.api",
+          "Port": 80
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Account/GetManagerUserByManagerRoleId"
+    },
+    {
+      "UpstreamPathTemplate": "/api/Account/User/{userId:Guid}",
+      "UpstreamHttpMethod": [ "get" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "usermanagement.api",
+          "Port": 80
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Account/User/{userId:Guid}"
+    },
+    {
+      "UpstreamPathTemplate": "/api/Account/UpdateUser",
+      "UpstreamHttpMethod": [ "put" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "usermanagement.api",
+          "Port": 80
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Account/UpdateUser"
+    },
+    {
       "UpstreamPathTemplate": "/api/Account/ConfirmEmail",
       "UpstreamHttpMethod": [ "get" ],
       "DownstreamScheme": "http",
@@ -85,6 +145,42 @@
         }
       ],
       "DownstreamPathTemplate": "/api/Account/ConfirmEmail"
+    },
+    {
+      "UpstreamPathTemplate": "/api/Account/ChangePassword",
+      "UpstreamHttpMethod": [ "post" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "usermanagement.api",
+          "Port": 80
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Account/ChangePassword"
+    },
+    {
+      "UpstreamPathTemplate": "/api/Password/ResetPassword",
+      "UpstreamHttpMethod": [ "post" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "usermanagement.api",
+          "Port": 80
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Password/ResetPassword"
+    },
+    {
+      "UpstreamPathTemplate": "/api/Account/IsEmailExist/{email}",
+      "UpstreamHttpMethod": [ "get" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "usermanagement.api",
+          "Port": 80
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Account/IsEmailExist/{email}"
     }
   ],
   "GlobalConfiguration": {

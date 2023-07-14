@@ -46,4 +46,6 @@ services:
       dockerfile: SignInManagement/Dockerfile
     networks:
         - backend
+    ports:
+         - 8004:80
 

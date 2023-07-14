@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SignInManagement.Data.Model;
 using UserManagememet.Data.Interface;
 using UserManagememet.Data.Model;
@@ -35,7 +37,7 @@ namespace UserManagement.API.Controllers
             _emailHelper = emailHelper;
             _configuration = configuration;
         }
-        [HttpPost("InsertRole")]
+        [HttpPost("InsertRole"),Authorize(Roles ="Manager")]
         public async Task<IActionResult> CreateRoleAsync(RoleViewModel model)
         {
             if (ModelState.IsValid)
@@ -60,13 +62,31 @@ namespace UserManagement.API.Controllers
                 return new OkObjectResult(new { succeded = false });
             }
         }
+        [HttpGet("GetAllRole"), Authorize]
+        public async Task<IActionResult> GetRoleAsync()
+        {
+            try
+            {
+                var GetAllRoles = await _roleManager.Roles.ToListAsync();
+                if (GetAllRoles.Any())
+                {
+                    return new OkObjectResult(new {succeded = true,GetAllRoles});
+                }
+                return new OkObjectResult(new { succeded = false});
+            }
+            catch (Exception)
+            {
 
-        [HttpPost("InsertUser")]
+                throw;
+            }
+        }
+
+        [HttpPost("InsertUser"), Authorize(Roles = "Manager")]
         public async Task<IActionResult> CreateUserAsync([FromBody]RegisterViewModel model)
         {
             if (ModelState.IsValid)
             {
-                var user = new User
+                var user = new UserManagememet.Data.Model.User
                 {
                     UserName = model.Email,
                     Email = model.Email,
@@ -98,11 +118,19 @@ namespace UserManagement.API.Controllers
 
                     }
                     var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var ResetPasswordToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+                    if (ResetPasswordToken != null)
+                    {
+                        user.UserToken = token;
+                        await _userManager.UpdateAsync(user);
+                    }
                     var ocelotUrl = _configuration.GetValue<string>("Ocelot:BaseUrl");
                     var confimationLink = $"{ocelotUrl}/api/Account/ConfirmEmail?token={Uri.EscapeDataString(token)}&email={user.Email}";
+                    var confirmPasswordLink = $"{ocelotUrl}/api/Account/xyz?token={Uri.EscapeDataString(ResetPasswordToken)}&email={user.Email}";
                     ConfimEmailRequestViewModel confimEmailModel = new ConfimEmailRequestViewModel();
                     confimEmailModel.UserEmail = user.Email;
                     confimEmailModel.ConfirmEmailLink = confimationLink;
+                    confimEmailModel.ConfirmPasswordLink = confirmPasswordLink;
                     confimEmailModel.UserPassword = model.Password;
                     confimEmailModel.UserName = user.FirstName + " " + user.LastName;
                         _= await _emailHelper.VerifyEmailAsync(confimEmailModel);
@@ -139,8 +167,8 @@ namespace UserManagement.API.Controllers
             }
         }
 
-        [HttpGet("GetAllUser")]
-        [Authorize]
+        [HttpGet("GetAllUser"), Authorize(Roles = "Manager")]
+        
         public async Task<IActionResult> GetAllUserAsync()
         {
             try
@@ -182,6 +210,49 @@ namespace UserManagement.API.Controllers
                 throw;
             }
         }
+        [HttpGet("GetManagerUserByManagerRoleId")]
+        public async Task<IActionResult> GetUserByManagerRoleId()
+        {
+            try
+            {
+                var users = await _accountService.GetUserByManagerRoleId();
+                if (users.Any())
+                {
+                    return new OkObjectResult(new { Succeeded = true, users });
+                }
+                else
+                {
+                    return new OkObjectResult(new { Succeeded = false });
+                }
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        [HttpGet("User/{userId:Guid}")]
+        public async Task<IActionResult> GetUserById(string UserId)
+        {
+            try
+            {
+                var user = await _accountService.GetUserByIdAsync(UserId);
+                if(user != null)
+                {
+                    return new OkObjectResult(new { succeeded = true, user });
+                }
+                else
+                {
+                    return new OkObjectResult(new { succeeded = false });
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
         [HttpGet("ConfirmEmail")]
         public async Task<IActionResult> ConfirmEmail(string token, string email)
         {
@@ -196,5 +267,86 @@ namespace UserManagement.API.Controllers
             }
             return new OkObjectResult(new { succcesdd = false, msg = result.Errors});
         }
+        [HttpPut("UpdateUser")]
+        public async Task<IActionResult> UpdateUserAsync([FromBody]UpdateUserViewModel model)
+        {
+            try
+            {
+                DateTime? date = null;
+                var user = await _userManager.FindByIdAsync(model.UserId);
+                user.FirstName = !string.IsNullOrEmpty(model.FirstName) ? model.FirstName : user.FirstName;
+                user.LastName = !string.IsNullOrEmpty(model.LastName) ? model.LastName : user.LastName;
+                user.Email = !string.IsNullOrEmpty(model.Email) ? model.Email : user.Email;
+                user.PhoneNumber = !string.IsNullOrEmpty(model.Phone) ? model.Phone : user.PhoneNumber;
+                user.Address = !string.IsNullOrEmpty(model.Address) ? model.Address : user.Address;
+                user.DOB = model.DOB.HasValue ? model.DOB.Value : user.DOB;
+                user.Gender = !string.IsNullOrEmpty(model.Gender) ? model.Gender : user.Gender;
+                user.DepartmentId = model.DepartmentId == 0 ? user.DepartmentId : model.DepartmentId;
+
+                var result = await _userManager.UpdateAsync(user);
+              _= _unitOfWork.commit();
+
+                return new OkObjectResult(result.Succeeded);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
+
+        [HttpPost("ActiveDeactiveUser")]
+        public async Task<IActionResult> UpdateActiveUser([FromBody] UpdateUserStatusViewModel model)
+        {
+            try
+            {
+                var user = await _userManager.FindByIdAsync(model.UserId);
+                if (user != null)
+                {
+                    user.IsActive = model.IsActive;
+                    var result = await _userManager.UpdateAsync(user);
+                    _ = _unitOfWork.commit();
+
+                    return new OkObjectResult(result.Succeeded);
+                }
+                else
+                {
+                    return new OkObjectResult(false);
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+
+        [HttpPost("ChangePassword")]
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+        {
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+            if (result.Succeeded)
+            {
+                return new OkObjectResult(new { succeeded =true,Msg="Password Updated Successfully" });
+            }
+            else
+            {
+                return new BadRequestObjectResult(new { succeeded = true, Msg = result.Errors });
+            }
+        }
+
+        [HttpGet("IsEmailExist/{email}")]
+        public async Task<IActionResult> IsEmailExist(string email)
+        {
+            var result = await _accountService.IsEmailExist(email);
+            if (result)
+            {
+                return new OkObjectResult(new { succedd = result, msg = "Email already Exist" });
+            }
+            return new OkObjectResult(new { succedd = result});
+        }
+
+    }
 }

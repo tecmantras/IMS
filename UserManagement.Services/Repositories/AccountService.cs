@@ -91,5 +91,103 @@ namespace UserManagement.Services.Repositories
                         }).Where(x=>x.Email == Email).FirstOrDefaultAsync();
             return  users;
         }
+
+        public async Task<UserResponseViewModel?> GetUserByIdAsync(string UserId)
+        {
+            try
+            {
+                var users = from u in _userRepository.GetAll().Include(x => x.Department)
+                            join ur in _userRoleRepository.GetAll()
+                            on u.Id equals ur.UserId
+                            join r in _roleRepository.GetAll()
+                            on ur.RoleId equals r.Id
+                            join am in _assignUserRepository.GetAll()
+                            on u.Id equals am.UserId into ams
+                            where u.Id == UserId
+                            from am in ams.DefaultIfEmpty()
+                            select new UserResponseViewModel
+                            {
+                                UserId = u.Id,
+                                FirstName = u.FirstName,
+                                LastName = u.LastName,
+                                Email = u.Email,
+                                Phone = u.PhoneNumber,
+                                Role = r.Name,
+                                Department = u.Department.Name,
+                                AssignedManagerId = am.AssignedManagerId,
+                                AssignedHrId = am.AssignedHrId
+                            };
+                var result = await (from u in users
+                             join Man in _userRepository.GetAll()
+                             on u.AssignedManagerId equals Man.Id into amd
+                             from Man in amd.DefaultIfEmpty()
+                             join hr in _userRepository.GetAll()
+                             on u.AssignedHrId equals hr.Id into hrs
+                             from hr in hrs.DefaultIfEmpty()
+                             select new UserResponseViewModel
+                             {
+                                 UserId = u.UserId,
+                                 FirstName = u.FirstName,
+                                 LastName = u.LastName,
+                                 Email = u.Email,
+                                 Phone = u.Phone,
+                                 Role = u.Role,
+                                 Department = u.Department,
+                                 AssignManager = string.IsNullOrEmpty(Man.FirstName) ? null : Man.FirstName + " " + Man.LastName,
+                                 AssignHR = string.IsNullOrEmpty(hr.FirstName) ? null : hr.FirstName + " " + hr.LastName
+                             }).FirstOrDefaultAsync();
+                return result;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public async Task<List<UserManagerViewModel>> GetUserByManagerRoleId()
+        {
+            try
+            {
+                var users = await (from u in _userRepository.GetAll().Include(x => x.Department)
+                                  join ur in _userRoleRepository.GetAll()
+                                  on u.Id equals ur.UserId
+                                  join r in _roleRepository.GetAll()
+                                  on ur.RoleId equals r.Id
+                                  select new UserManagerViewModel
+                                  {
+                                      UserId = u.Id,
+                                      Name = u.FirstName+" "+ u.LastName,
+                                      RoleId = ur.RoleId
+                                  }).Where(x => x.RoleId == "f0aaeba8-ff55-4cd3-980d-58eaaf4e3293").ToListAsync();
+                return users;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public async Task<bool> IsEmailExist(string email)
+        {
+            try
+            {
+                var userCount =await _userRepository.GetAll().Where(x => x.Email == email).CountAsync();
+                if (userCount > 0)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        } 
     }
 }

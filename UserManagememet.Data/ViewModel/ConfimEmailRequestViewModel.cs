@@ -13,6 +13,7 @@ namespace UserManagememet.Data.ViewModel
 
         public string UserName { get; set; }
         public string ConfirmEmailLink { get; set; }
+        public string ConfirmPasswordLink { get;  set; }
 
     }
 }

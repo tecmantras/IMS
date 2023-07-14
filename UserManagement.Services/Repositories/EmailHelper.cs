@@ -21,15 +21,16 @@ namespace UserManagement.Services.Repositories
         <p>Welcome to the Team. Your account details are:</p>
         <ul>
             <li><strong>Username:</strong> {{userEmail}}</li>
-            <li><strong>Password:</strong> {{Password}}</li>
         </ul>
         <p>Please click the following link to confirm your email:</p>
         <a href=""{{confirmationLink}}"">{{confirmationLink}}</a>
+        <p>Please click the following for reset your password:</p>
+        <a href=""{{confirmPasswordLink}}"">{{confirmPasswordLink}}</a>
         <p>Regards,</p>
         <p>Tec Mantras</p>
     ";
             mailbody = mailbody.Replace("{userName}", model.UserName).Replace("{userEmail}", model.UserEmail)
-                .Replace("{Password}", model.UserPassword).Replace("{confirmationLink}", model.ConfirmEmailLink);
+                .Replace("{Password}", model.UserPassword).Replace("{confirmationLink}", model.ConfirmEmailLink).Replace("{confirmPasswordLink}", model.ConfirmPasswordLink);
 
             SendEmailViewModel sendEmailViewModel = new SendEmailViewModel();
             sendEmailViewModel.Subject = "Email Confirmation";

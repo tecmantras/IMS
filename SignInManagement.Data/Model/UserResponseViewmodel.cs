@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SignInManagement.Data.Model
 {
-    public class User
+    public class UserResponseViewmodel
     {
         public string? UserId { get; set; }
         public string? FirstName { get; set; }

@@ -20,7 +20,7 @@ namespace SignInManagement.Data
                 AuthenticationResponse authentication = new AuthenticationResponse();
                 if (string.IsNullOrWhiteSpace(request.UserName) || string.IsNullOrWhiteSpace(request.Password))
                     return null;
-                User user = new User();
+                UserResponseViewmodel user = new UserResponseViewmodel();
                 HttpClient client = new HttpClient();
                 var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
                 string url = "http://host.docker.internal:8003/api/Account/Authenticate";
@@ -32,10 +32,13 @@ namespace SignInManagement.Data
                     {
                         return null;
                     }
-                    user = JsonConvert.DeserializeObject<User>(userresponse);
-                    var token = await GenerateJwtToken(user);
+                    user = JsonConvert.DeserializeObject<UserResponseViewmodel>(userresponse);
+                    var AuthResponse = await GenerateJwtToken(user);
                     authentication.UserName = user.FirstName + " " + user.LastName;
-                    authentication.Token = token;
+                    authentication.Token = AuthResponse.Token;
+                    authentication.ExpiresIn = AuthResponse.ExpiresIn;
+                    authentication.Roles = user.Role;
+
 
                 }
                 return authentication;
@@ -47,7 +50,7 @@ namespace SignInManagement.Data
             }
 
         }
-        public async Task<string> GenerateJwtToken(User user)
+        public async Task<AuthenticationResponse> GenerateJwtToken(UserResponseViewmodel user)
         {
             try
             {
@@ -58,7 +61,7 @@ namespace SignInManagement.Data
                 new Claim(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString()),
                 new Claim("Username", user.Email),
                 new Claim(ClaimTypes.NameIdentifier,user.UserId),
-                new Claim("Role", user.Role)
+                new Claim(ClaimTypes.Role, user.Role)
             };
 
                 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JWT_SECURRITY_KEY));
@@ -69,7 +72,12 @@ namespace SignInManagement.Data
                             expires: expires,
                             signingCredentials: creds
                         );
-                return new JwtSecurityTokenHandler().WriteToken(token);
+                AuthenticationResponse responseViewmodel = new AuthenticationResponse
+                {
+                    Token = new JwtSecurityTokenHandler().WriteToken(token),
+                    ExpiresIn = (int)expires.Subtract(DateTime.Now).TotalSeconds,
+                };
+                return responseViewmodel;
             }
             catch (Exception)
             {
