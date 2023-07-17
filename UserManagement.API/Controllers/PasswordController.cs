@@ -46,8 +46,8 @@ namespace UserManagement.API.Controllers
             var user = await _userManager.Users.FirstOrDefaultAsync(u => u.UserToken == model.token);
             if (user != null)
             {
-
-                var result = await _userManager.ResetPasswordAsync(user, model.token, model.NewPassword);
+                var token = Uri.UnescapeDataString(user.UserToken);
+                var result = await _userManager.ResetPasswordAsync(user, token, model.NewPassword);
                 if (result.Succeeded)
                 {
                     user.UserToken = null;

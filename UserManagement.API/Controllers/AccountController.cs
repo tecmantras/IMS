@@ -121,7 +121,7 @@ namespace UserManagement.API.Controllers
                     var ResetPasswordToken = await _userManager.GeneratePasswordResetTokenAsync(user);
                     if (ResetPasswordToken != null)
                     {
-                        user.UserToken = token;
+                        user.UserToken = Uri.EscapeDataString(ResetPasswordToken);
                         await _userManager.UpdateAsync(user);
                     }
                     var ocelotUrl = _configuration.GetValue<string>("Ocelot:BaseUrl");
