@@ -37,7 +37,7 @@ namespace UserManagement.API.Controllers
             _emailHelper = emailHelper;
             _configuration = configuration;
         }
-        [HttpPost("InsertRole"),Authorize(Roles ="Manager")]
+        [HttpPost("InsertRole"), Authorize(Roles = "Manager,HR")]
         public async Task<IActionResult> CreateRoleAsync(RoleViewModel model)
         {
             if (ModelState.IsValid)
@@ -62,7 +62,7 @@ namespace UserManagement.API.Controllers
                 return new OkObjectResult(new { succeded = false });
             }
         }
-        [HttpGet("GetAllRole"), Authorize]
+        [HttpGet("GetAllRole"), Authorize(Roles = "Manager,HR,Employee")]
         public async Task<IActionResult> GetRoleAsync()
         {
             try
@@ -81,7 +81,7 @@ namespace UserManagement.API.Controllers
             }
         }
 
-        [HttpPost("InsertUser"), Authorize(Roles = "Manager")]
+        [HttpPost("InsertUser"), Authorize(Roles = "Manager,HR")]
         public async Task<IActionResult> CreateUserAsync([FromBody]RegisterViewModel model)
         {
             if (ModelState.IsValid)
@@ -167,7 +167,7 @@ namespace UserManagement.API.Controllers
             }
         }
 
-        [HttpGet("GetAllUser"), Authorize(Roles = "Manager")]
+        [HttpGet("GetAllUser"), Authorize(Roles = "Manager,HR")]
         
         public async Task<IActionResult> GetAllUserAsync()
         {
@@ -232,7 +232,7 @@ namespace UserManagement.API.Controllers
                 throw;
             }
         }
-        [HttpGet("User/{userId:Guid}")]
+        [HttpGet("User/{userId:Guid}"), Authorize(Roles = "Manager,HR,Employee")]
         public async Task<IActionResult> GetUserById(string UserId)
         {
             try
@@ -267,7 +267,7 @@ namespace UserManagement.API.Controllers
             }
             return new OkObjectResult(new { succcesdd = false, msg = result.Errors});
         }
-        [HttpPut("UpdateUser")]
+        [HttpPut("UpdateUser"),Authorize(Roles = "Manager,HR,Employee")]
         public async Task<IActionResult> UpdateUserAsync([FromBody]UpdateUserViewModel model)
         {
             try
@@ -322,7 +322,7 @@ namespace UserManagement.API.Controllers
         }
 
 
-        [HttpPost("ChangePassword")]
+        [HttpPost("ChangePassword"), Authorize(Roles = "Manager,HR,Employee")]
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
         {
             var user = await _userManager.FindByEmailAsync(model.Email);

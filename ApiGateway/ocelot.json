@@ -171,6 +171,18 @@
       "DownstreamPathTemplate": "/api/Password/ResetPassword"
     },
     {
+      "UpstreamPathTemplate": "/api/Password/ForgotPassword",
+      "UpstreamHttpMethod": [ "post" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "usermanagement.api",
+          "Port": 80
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Password/ForgotPassword"
+    },
+    {
       "UpstreamPathTemplate": "/api/Account/IsEmailExist/{email}",
       "UpstreamHttpMethod": [ "get" ],
       "DownstreamScheme": "http",

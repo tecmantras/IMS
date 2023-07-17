@@ -26,8 +26,9 @@ namespace UserManagement.API.Controllers
                 var token = await _userManager.GeneratePasswordResetTokenAsync(user);
                 if (token != null)
                 {
-                    user.UserToken = token;
+                    user.UserToken = Uri.EscapeDataString(token); ;
                     await _userManager.UpdateAsync(user);
+
                     return new OkObjectResult(new { result = true });
                 }
                 else
