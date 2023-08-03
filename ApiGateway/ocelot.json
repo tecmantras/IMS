@@ -23,7 +23,14 @@
           "Port": 80
         }
       ],
-      "DownstreamPathTemplate": "/api/Department"
+      "DownstreamPathTemplate": "/api/Department",
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "Role": [ "HR,Admin,Manager,Employee" ]
+      }
 
     },
     {
@@ -36,7 +43,14 @@
           "Port": 80
         }
       ],
-      "DownstreamPathTemplate": "/api/Account/GetAllUser"
+      "DownstreamPathTemplate": "/api/Account/GetAllUser",
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "Role": [ "HR,Admin,Manager" ]
+      }
     },
     {
       "UpstreamPathTemplate": "/api/Account/GetUser/{Email}",
@@ -72,7 +86,11 @@
           "Port": 80
         }
       ],
-      "DownstreamPathTemplate": "/api/Account/InsertUser"
+      "DownstreamPathTemplate": "/api/Account/InsertUser",
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
     },
     {
       "UpstreamPathTemplate": "/api/Account/InsertRole",
@@ -84,7 +102,14 @@
           "Port": 80
         }
       ],
-      "DownstreamPathTemplate": "/api/Account/InsertRole"
+      "DownstreamPathTemplate": "/api/Account/InsertRole",
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "Role": [ "HR,Admin,Manager" ]
+      }
     },
     {
       "UpstreamPathTemplate": "/api/Account/GetAllRole",
@@ -96,7 +121,14 @@
           "Port": 80
         }
       ],
-      "DownstreamPathTemplate": "/api/Account/GetAllRole"
+      "DownstreamPathTemplate": "/api/Account/GetAllRole",
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "Role": [ "HR,Admin,Manager" ]
+      }
     },
     {
       "UpstreamPathTemplate": "/api/Account/GetManagerUserByManagerRoleId",
@@ -108,7 +140,14 @@
           "Port": 80
         }
       ],
-      "DownstreamPathTemplate": "/api/Account/GetManagerUserByManagerRoleId"
+      "DownstreamPathTemplate": "/api/Account/GetManagerUserByManagerRoleId",
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "Role": [ "HR,Admin,Manager" ]
+      }
     },
     {
       "UpstreamPathTemplate": "/api/Account/User/{userId:Guid}",
@@ -132,7 +171,14 @@
           "Port": 80
         }
       ],
-      "DownstreamPathTemplate": "/api/Account/UpdateUser"
+      "DownstreamPathTemplate": "/api/Account/UpdateUser",
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "Role": [ "HR,Admin,Manager" ]
+      }
     },
     {
       "UpstreamPathTemplate": "/api/Account/ConfirmEmail",
@@ -156,7 +202,15 @@
           "Port": 80
         }
       ],
-      "DownstreamPathTemplate": "/api/Account/ChangePassword"
+      "DownstreamPathTemplate": "/api/Account/ChangePassword",
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "Role": [ "HR,Admin,Manager,Employee" ]
+      }
+
     },
     {
       "UpstreamPathTemplate": "/api/Password/ResetPassword",
@@ -183,6 +237,25 @@
       "DownstreamPathTemplate": "/api/Password/ForgotPassword"
     },
     {
+      "UpstreamPathTemplate": "/api/Account/ActiveDeactiveUser",
+      "UpstreamHttpMethod": [ "post" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "usermanagement.api",
+          "Port": 80
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Account/ActiveDeactiveUser",
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "Role": [ "HR,Admin,Manager" ]
+      }
+    },
+    {
       "UpstreamPathTemplate": "/api/Account/IsEmailExist/{email}",
       "UpstreamHttpMethod": [ "get" ],
       "DownstreamScheme": "http",
@@ -193,7 +266,187 @@
         }
       ],
       "DownstreamPathTemplate": "/api/Account/IsEmailExist/{email}"
+    },
+    {
+      "UpstreamPathTemplate": "/api/Account/GetUserByHRRoleId",
+      "UpstreamHttpMethod": [ "get" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "usermanagement.api",
+          "Port": 80
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Account/GetUserByHRRoleId",
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "Role": [ "HR,Admin,Manager" ]
+      }
+    },
+    {
+      "UpstreamPathTemplate": "/api/Account/GetUser/{userId:Guid}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Put" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "usermanagement.api",
+          "Port": 80
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Account/GetUser/{userId:Guid}"
+    },
+    {
+      "UpstreamPathTemplate": "/api/LeaveType",
+      "UpstreamHttpMethod": [ "Get", "Post", "Put" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8005
+        }
+      ],
+      "DownstreamPathTemplate": "/api/LeaveType",
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      },
+      "AddClaimsToRequest": {
+        "Claim_UserId": "Claims[UserId] > value > |"
+      },
+      "RouteClaimsRequirement": {
+        "Role": [ "HR,Admin,Manager" ]
+      }
+    },
+    {
+      "UpstreamPathTemplate": "/api/UserLeave/LeaveApply",
+      "UpstreamHttpMethod": [ "post" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8005
+        }
+      ],
+      "DownstreamPathTemplate": "/api/UserLeave/LeaveApply",
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "Role": [ "HR,Admin,Manager,Employee" ]
+      }
+    },
+    {
+      "UpstreamPathTemplate": "/api/UserLeave/GetAllLeavesByManagerOrHRIds/{userId}",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8005
+        }
+      ],
+      "DownstreamPathTemplate": "/api/UserLeave/GetAllLeavesByManagerOrHRIds/{userId}"
+    },
+    {
+      "UpstreamPathTemplate": "/api/UserLeaveBalance",
+      "UpstreamHttpMethod": [ "Get", "Post", "Put" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8005
+        }
+      ],
+      "DownstreamPathTemplate": "/api/UserLeaveBalance",
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "Role": [ "HR,Admin,Manager" ]
+      }
+    },
+    {
+      "UpstreamPathTemplate": "/api/UserLeave/GetAllLeavesByUserId/{userId}",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8005
+        }
+      ],
+      "DownstreamPathTemplate": "/api/UserLeave/GetAllLeavesByUserId/{userId}",
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "Role": [ "HR,Admin,Manager,Employee" ]
+      }
+    },
+    {
+      "UpstreamPathTemplate": "/api/UserLeave/LeaveApproveOrReject",
+      "UpstreamHttpMethod": [ "post" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8005
+        }
+      ],
+      "DownstreamPathTemplate": "/api/UserLeave/LeaveApproveOrReject"
+
+    },
+    {
+      "UpstreamPathTemplate": "/api/UserLeave/CancelLeave",
+      "UpstreamHttpMethod": [ "post" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8005
+        }
+      ],
+      "DownstreamPathTemplate": "/api/UserLeave/CancelLeave"
+
+    },
+    {
+      "UpstreamPathTemplate": "/api/UserLeave/GetAllLeavesByAdminId",
+      "UpstreamHttpMethod": [ "get" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8005
+        }
+      ],
+      "DownstreamPathTemplate": "/api/UserLeave/GetAllLeavesByAdminId",
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "Role": [ "Admin" ]
+      }
+    },
+    {
+      "UpstreamPathTemplate": "/api/UserLeave/RemainingLeaveCount/{userId}",
+      "UpstreamHttpMethod": [ "get" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8005
+        }
+      ],
+      "DownstreamPathTemplate": "/api/UserLeave/RemainingLeaveCount/{userId}"
     }
+
   ],
   "GlobalConfiguration": {
     "BaseUrl": "https://localhost:8003"

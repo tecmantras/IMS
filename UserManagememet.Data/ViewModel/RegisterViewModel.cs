@@ -61,7 +61,13 @@ namespace UserManagememet.Data.ViewModel
         public string? Role { get; set; }
         public string? AssignedManagerId { get; set; }
         public string? AssignedHrId { get; set; }
-
+        public bool? IsActive { get; set; }
+        public string? Address { get; set; }
+        public string? DOB { get; set; }
+        public string? DOJ { get; set; }
+        public int? DepartmentId { get; set; }
+        public string? Gender { get; set; }
+        public bool Status { get; set; }
     }
     public class LoginViewModel
     {
@@ -73,6 +79,10 @@ namespace UserManagememet.Data.ViewModel
         public string? UserId { get; set; }
         public string Name { get; set; }
         public string RoleId { get; set; }
+    }
+    public class UserLeaveBalanceViewModel
+    {
+        public string? UserId { get; set; }
     }
     public class ChangePasswordViewModel
     {
@@ -90,6 +100,7 @@ namespace UserManagememet.Data.ViewModel
     {
         [Required]
         public string Email { get; set; }
+       
     }
     public class ResetPasswordViewModel
     {
@@ -98,5 +109,22 @@ namespace UserManagememet.Data.ViewModel
         [Required]
         public string NewPassword { get; set; }
     }
+    public class ForgotPasswordEmailViewModel
+    {
+        public string Email { get; set; }
+        public string confirmPasswordLink { get; set; }
+        public string  UserName { get; set; }
 
+    }
+    public class UserHRViewModel
+    {
+        public string? UserId { get; set; }
+        public string Name { get; set; }
+    }
+
+    public class PagedListUserViewModel
+    {
+        public int TotalCount { get; set; }
+        public List<UserResponseViewModel> userResponses { get; set; }
+    }
 }

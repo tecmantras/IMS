@@ -11,7 +11,7 @@ namespace SignInManagement.Data
     {
 
         public const string JWT_SECURRITY_KEY = "ykjjssadglkWsdjg5w50i04B324Vj423432";
-        public const int JWT_TOKEN_VALIDITY_MINS = 20;
+        public const int JWT_TOKEN_VALIDITY_MINS = 720;
 
         public async Task<AuthenticationResponse> Authenticate(AuthenticationRequest request)
         {
@@ -28,19 +28,22 @@ namespace SignInManagement.Data
                 if (response.IsSuccessStatusCode)
                 {
                     var userresponse = await response.Content.ReadAsStringAsync();
-                    if(userresponse== "false")
-                    {
-                        return null;
-                    }
                     user = JsonConvert.DeserializeObject<UserResponseViewmodel>(userresponse);
+                    authentication = new AuthenticationResponse();
                     var AuthResponse = await GenerateJwtToken(user);
                     authentication.UserName = user.FirstName + " " + user.LastName;
                     authentication.Token = AuthResponse.Token;
                     authentication.ExpiresIn = AuthResponse.ExpiresIn;
                     authentication.Roles = user.Role;
+                    authentication.Status = user.Status;
+                    authentication.UserId = user.UserId;
 
 
                 }
+                var errorResponse = await response.Content.ReadAsStringAsync();
+               var error = JsonConvert.DeserializeObject<ErrorResponseViewModel>(errorResponse);
+                authentication.Status = error.Status;
+                authentication.Message = error.Msg;
                 return authentication;
             }
             catch (Exception)
@@ -61,6 +64,7 @@ namespace SignInManagement.Data
                 new Claim(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString()),
                 new Claim("Username", user.Email),
                 new Claim(ClaimTypes.NameIdentifier,user.UserId),
+                new Claim("UserId",user.UserId),
                 new Claim(ClaimTypes.Role, user.Role)
             };
 

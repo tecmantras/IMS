@@ -16,5 +16,11 @@ namespace SignInManagement.Data.Model
        // public string Gender { get; set; }
       //  public DateTime DOB { get; set; }
         public string? Role { get; set; }
+        public bool Status { get; set; }
+    }
+    public class ErrorResponseViewModel
+    {
+        public bool Status { get; set; }
+       public string Msg { get; set; }
     }
 }

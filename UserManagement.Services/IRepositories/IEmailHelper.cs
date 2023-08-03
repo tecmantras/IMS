@@ -10,5 +10,6 @@ namespace UserManagement.Services.IRepositories
     public interface IEmailHelper
     {
         Task<bool> VerifyEmailAsync(ConfimEmailRequestViewModel model);
+        Task<bool> ForgotPasswordEmailAsync(ForgotPasswordEmailViewModel model);
     }
 }

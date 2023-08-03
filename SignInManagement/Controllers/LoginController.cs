@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SignInManagement.Data;
 using SignInManagement.Data.Model;
+using System.Net;
 
 namespace SignInManagement.Controllers
 {
@@ -24,7 +25,7 @@ namespace SignInManagement.Controllers
             try
             {
                 var AuthToken =  _userDetail.Authenticate(request).Result;
-                if (AuthToken == null) return Unauthorized();
+                if (AuthToken.Status == false) return StatusCode(Convert.ToInt32(HttpStatusCode.Forbidden),AuthToken.Message);
 
                 return AuthToken;
             }

@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Azure;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.Intrinsics.Arm;
+using UserManagememet.Data.Constant;
 using UserManagememet.Data.Interface;
 using UserManagememet.Data.Model;
 using UserManagememet.Data.ViewModel;
@@ -26,8 +28,13 @@ namespace UserManagement.Services.Repositories
             _roleRepository = _unitOfWork.GetRepository<IdentityRole>();
             _userRoleRepository = _unitOfWork.GetRepository<IdentityUserRole<string>>();
         }
-        public async Task<List<UserResponseViewModel>> GetAllUserAsync()
+        public async Task<PagedListUserViewModel> GetAllUserAsync(int Page, int PageSize = 10, string? SearchValue = null)
         {
+            PagedListUserViewModel pagedList = new PagedListUserViewModel();
+
+
+        
+
             var users = from u in _userRepository.GetAll().Include(x => x.Department)
                         join ur in _userRoleRepository.GetAll()
                         on u.Id equals ur.UserId
@@ -36,6 +43,13 @@ namespace UserManagement.Services.Repositories
                         join am in _assignUserRepository.GetAll()
                         on u.Id equals am.UserId into ams
                         from am in ams.DefaultIfEmpty()
+                        where !u.IsDeleted && (SearchValue == null || (
+                              (SearchValue != null && u.FirstName.Contains(SearchValue)) ||
+                              (SearchValue != null && u.LastName.Contains(SearchValue)) ||
+                              (SearchValue != null && u.Email.Contains(SearchValue)) ||
+                              (SearchValue != null && r.Name.Contains(SearchValue)) ||
+                              (SearchValue != null && u.Department.Name.Contains(SearchValue)
+                              )))
                         select new UserResponseViewModel
                         {
                             UserId = u.Id,
@@ -46,7 +60,13 @@ namespace UserManagement.Services.Repositories
                             Role = r.Name,
                             Department = u.Department.Name,
                             AssignedManagerId = am.AssignedManagerId,
-                            AssignedHrId = am.AssignedHrId
+                            AssignedHrId = am.AssignedHrId,
+                            IsActive = u.IsActive,
+                            Address = u.Address,
+                            DOB = u.DOB.ToString(ConstantData.DateFormat),
+                            DOJ = u.JoiningDate.ToString(ConstantData.DateFormat),
+                            DepartmentId = u.DepartmentId,
+                            Gender = u.Gender
                         };
             var result = from u in users
                          join Man in _userRepository.GetAll()
@@ -65,31 +85,43 @@ namespace UserManagement.Services.Repositories
                              Role = u.Role,
                              Department = u.Department,
                              AssignManager = string.IsNullOrEmpty(Man.FirstName) ? null : Man.FirstName + " " + Man.LastName,
-                             AssignHR = string.IsNullOrEmpty(hr.FirstName) ? null : hr.FirstName + " " + hr.LastName
+                             AssignHR = string.IsNullOrEmpty(hr.FirstName) ? null : hr.FirstName + " " + hr.LastName,
+                             IsActive = u.IsActive,
+                             Address = u.Address,
+                             DOB = u.DOB,
+                             DOJ = u.DOJ,
+                             DepartmentId = u.DepartmentId,
+                             AssignedManagerId = u.AssignedManagerId,
+                             AssignedHrId = u.AssignedHrId,
+                             Gender = u.Gender
                          };
-            return await result.ToListAsync();
-
-
+            pagedList.userResponses = await result.Skip((Page - 1) * PageSize)
+             .Take(PageSize)
+             .ToListAsync();
+            pagedList.TotalCount = result.Count();
+            return pagedList;
         }
 
         public async Task<UserResponseViewModel> GetByEmailUserAsync(string Email)
         {
             // var user = _userRepository.GetAll().Include(x=>x.Department).Join().FirstOrDefaultAsync(x => x.Email == Email);
             var users = await (from u in _userRepository.GetAll().Include(x => x.Department)
-                        join ur in _userRoleRepository.GetAll()
-                        on u.Id equals ur.UserId
-                        join r in _roleRepository.GetAll()
-                        on ur.RoleId equals r.Id
-                        select new UserResponseViewModel
-                        {
-                            UserId = u.Id,
-                            FirstName = u.FirstName,
-                            LastName = u.LastName,
-                            Email = u.Email,
-                            Role = r.Name,
-                            Department = u.Department.Name,
-                        }).Where(x=>x.Email == Email).FirstOrDefaultAsync();
-            return  users;
+                               join ur in _userRoleRepository.GetAll()
+                               on u.Id equals ur.UserId
+                               join r in _roleRepository.GetAll()
+                               on ur.RoleId equals r.Id
+                               where u.Email == Email
+                               select new UserResponseViewModel
+                               {
+                                   UserId = u.Id,
+                                   FirstName = u.FirstName,
+                                   LastName = u.LastName,
+                                   Email = u.Email,
+                                   Role = r.Name,
+                                   Department = u.Department.Name,
+                                   Status = true,
+                               }).FirstOrDefaultAsync();
+            return users;
         }
 
         public async Task<UserResponseViewModel?> GetUserByIdAsync(string UserId)
@@ -103,8 +135,8 @@ namespace UserManagement.Services.Repositories
                             on ur.RoleId equals r.Id
                             join am in _assignUserRepository.GetAll()
                             on u.Id equals am.UserId into ams
-                            where u.Id == UserId
                             from am in ams.DefaultIfEmpty()
+                            where u.Id == UserId && !u.IsDeleted
                             select new UserResponseViewModel
                             {
                                 UserId = u.Id,
@@ -118,24 +150,26 @@ namespace UserManagement.Services.Repositories
                                 AssignedHrId = am.AssignedHrId
                             };
                 var result = await (from u in users
-                             join Man in _userRepository.GetAll()
-                             on u.AssignedManagerId equals Man.Id into amd
-                             from Man in amd.DefaultIfEmpty()
-                             join hr in _userRepository.GetAll()
-                             on u.AssignedHrId equals hr.Id into hrs
-                             from hr in hrs.DefaultIfEmpty()
-                             select new UserResponseViewModel
-                             {
-                                 UserId = u.UserId,
-                                 FirstName = u.FirstName,
-                                 LastName = u.LastName,
-                                 Email = u.Email,
-                                 Phone = u.Phone,
-                                 Role = u.Role,
-                                 Department = u.Department,
-                                 AssignManager = string.IsNullOrEmpty(Man.FirstName) ? null : Man.FirstName + " " + Man.LastName,
-                                 AssignHR = string.IsNullOrEmpty(hr.FirstName) ? null : hr.FirstName + " " + hr.LastName
-                             }).FirstOrDefaultAsync();
+                                    join Man in _userRepository.GetAll()
+                                    on u.AssignedManagerId equals Man.Id into amd
+                                    from Man in amd.DefaultIfEmpty()
+                                    join hr in _userRepository.GetAll()
+                                    on u.AssignedHrId equals hr.Id into hrs
+                                    from hr in hrs.DefaultIfEmpty()
+                                    select new UserResponseViewModel
+                                    {
+                                        UserId = u.UserId,
+                                        FirstName = u.FirstName,
+                                        LastName = u.LastName,
+                                        Email = u.Email,
+                                        Phone = u.Phone,
+                                        Role = u.Role,
+                                        Department = u.Department,
+                                        AssignManager = string.IsNullOrEmpty(Man.FirstName) ? null : Man.FirstName + " " + Man.LastName,
+                                        AssignHR = string.IsNullOrEmpty(hr.FirstName) ? null : hr.FirstName + " " + hr.LastName,
+                                        AssignedManagerId = u.AssignedManagerId,
+                                        AssignedHrId = u.AssignedHrId
+                                    }).FirstOrDefaultAsync();
                 return result;
             }
             catch (Exception)
@@ -149,17 +183,17 @@ namespace UserManagement.Services.Repositories
         {
             try
             {
-                var users = await (from u in _userRepository.GetAll().Include(x => x.Department)
-                                  join ur in _userRoleRepository.GetAll()
-                                  on u.Id equals ur.UserId
-                                  join r in _roleRepository.GetAll()
-                                  on ur.RoleId equals r.Id
-                                  select new UserManagerViewModel
-                                  {
-                                      UserId = u.Id,
-                                      Name = u.FirstName+" "+ u.LastName,
-                                      RoleId = ur.RoleId
-                                  }).Where(x => x.RoleId == "f0aaeba8-ff55-4cd3-980d-58eaaf4e3293").ToListAsync();
+                var users = await (from u in _userRepository.GetAll()
+                                   join ur in _userRoleRepository.GetAll()
+                                   on u.Id equals ur.UserId
+                                   join r in _roleRepository.GetAll()
+                                   on ur.RoleId equals r.Id
+                                   where r.Name == UserRole.Manager
+                                   select new UserManagerViewModel
+                                   {
+                                       UserId = u.Id,
+                                       Name = u.FirstName + " " + u.LastName
+                                   }).ToListAsync();
                 return users;
             }
             catch (Exception)
@@ -173,7 +207,7 @@ namespace UserManagement.Services.Repositories
         {
             try
             {
-                var userCount =await _userRepository.GetAll().Where(x => x.Email == email).CountAsync();
+                var userCount = await _userRepository.GetAll().Where(x => x.Email == email && !x.IsDeleted).CountAsync();
                 if (userCount > 0)
                 {
                     return true;
@@ -188,6 +222,88 @@ namespace UserManagement.Services.Repositories
 
                 throw;
             }
-        } 
+        }
+
+        public async Task<List<UserHRViewModel>> GetUserByHRRoleId()
+        {
+            try
+            {
+                var users = await (from u in _userRepository.GetAll()
+                                   join ur in _userRoleRepository.GetAll()
+                                   on u.Id equals ur.UserId
+                                   join r in _roleRepository.GetAll()
+                                   on ur.RoleId equals r.Id
+                                   where r.Name == UserRole.HR
+                                   select new UserHRViewModel
+                                   {
+                                       UserId = u.Id,
+                                       Name = u.FirstName + " " + u.LastName,
+                                   }).ToListAsync();
+                return users;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+        }
+
+        public async Task<List<UserResponseViewModel?>> GetUserByManagerOrHRIdAsync(string UserId)
+        {
+            try
+            {
+                var users = from u in _userRepository.GetAll().Include(x => x.Department)
+                            join ur in _userRoleRepository.GetAll()
+                            on u.Id equals ur.UserId
+                            join r in _roleRepository.GetAll()
+                            on ur.RoleId equals r.Id
+                            join am in _assignUserRepository.GetAll()
+                            on u.Id equals am.UserId into ams
+                            from am in ams.DefaultIfEmpty()
+                            where  am.AssignedHrId == UserId || am.AssignedManagerId == UserId && u.IsActive
+                            select new UserResponseViewModel
+                            {
+                                UserId = u.Id,
+                                FirstName = u.FirstName,
+                                LastName = u.LastName,
+                                Email = u.Email,
+                                Phone = u.PhoneNumber,
+                                Role = r.Name,
+                                Department = u.Department.Name,
+                                AssignedManagerId = am.AssignedManagerId,
+                                AssignedHrId = am.AssignedHrId,
+                                DOJ = u.JoiningDate.ToString(ConstantData.DateFormat)
+                            };
+                var result = await (from u in users
+                                    join Man in _userRepository.GetAll()
+                                    on u.AssignedManagerId equals Man.Id into amd
+                                    from Man in amd.DefaultIfEmpty()
+                                    join hr in _userRepository.GetAll()
+                                    on u.AssignedHrId equals hr.Id into hrs
+                                    from hr in hrs.DefaultIfEmpty()
+                                    select new UserResponseViewModel
+                                    {
+                                        UserId = u.UserId,
+                                        FirstName = u.FirstName,
+                                        LastName = u.LastName,
+                                        Email = u.Email,
+                                        Phone = u.Phone,
+                                        Role = u.Role,
+                                        Department = u.Department,
+                                        AssignManager = string.IsNullOrEmpty(Man.FirstName) ? null : Man.FirstName + " " + Man.LastName,
+                                        AssignHR = string.IsNullOrEmpty(hr.FirstName) ? null : hr.FirstName + " " + hr.LastName,
+                                        AssignedManagerId = u.AssignedManagerId,
+                                        AssignedHrId = u.AssignedHrId,
+                                        DOJ = u.DOJ
+                                    }).ToListAsync();
+                return result;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
     }
 }

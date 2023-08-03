@@ -39,7 +39,7 @@ namespace UserManagement.Services.Repositories
             return await SendEmail(sendEmailViewModel);
 
         }
-        
+
         public async Task<bool> SendEmail(SendEmailViewModel model)
         {
             bool sendEmail = false;
@@ -89,5 +89,27 @@ namespace UserManagement.Services.Repositories
 
         }
 
+        public async Task<bool> ForgotPasswordEmailAsync(ForgotPasswordEmailViewModel model)
+        {
+            string mailbody = $@"
+        <h1>Reset Password Email</h1>
+        <p>Dear {{userName}},</p>
+        <p>Please click the following for reset your password:</p>
+        <a style='display: inline-block;padding: 10px 20px;background-color: #4CAF50;
+        color: white;text-decoration: none;border-radius: 4px;border: none;cursor: pointer;
+         text-align: center;' href=""{{confirmPasswordLink}}"">Reset Password</a>
+        <p>Regards,</p>
+        <p>Tec Mantras</p>";
+            mailbody = mailbody.Replace("{userName}", model.UserName).
+                Replace("{confirmPasswordLink}", model.confirmPasswordLink);
+
+            SendEmailViewModel sendEmailViewModel = new SendEmailViewModel();
+            sendEmailViewModel.Subject = "Reset Password";
+            sendEmailViewModel.Body = mailbody;
+            sendEmailViewModel.Email = model.Email;
+            return await SendEmail(sendEmailViewModel);
+
+
+        }
     }
 }

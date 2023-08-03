@@ -15,7 +15,7 @@ services:
         - 8001:1433
   usermanagement.api:
     container_name: user-api
-    image: ${DOCKER_REGISTRY-}usermanagementapi
+    image: gouravkataria/usermanagementapi
     build:
       context: .
       dockerfile: UserManagement.API/Dockerfile
@@ -29,7 +29,7 @@ services:
         - DB_SA_PASSWORD=Test@123
   apigateway:
     container_name: api-gateway
-    image: ${DOCKER_REGISTRY-}apigateway
+    image: gouravkataria/apigateway
     build:
       context: .
       dockerfile: ApiGateway/Dockerfile
@@ -40,7 +40,7 @@ services:
 
   signinmanagement:
     container_name: signinmanagement-api
-    image: ${DOCKER_REGISTRY-}signinmanagement
+    image: gouravkataria/signinmanagement
     build:
       context: .
       dockerfile: SignInManagement/Dockerfile
@@ -48,4 +48,14 @@ services:
         - backend
     ports:
          - 8004:80
+  #leavemanagement.api:
+  #  container_name: leavemanagement-api
+  #  image: ${DOCKER_REGISTRY-}leavemanagement
+  #  build:
+  #    context: .
+  #    dockerfile: LeaveManagement.API/Dockerfile
+  #  networks:
+  #      - backend
+  #  ports:
+  #       - 8005:80
 
