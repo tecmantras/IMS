@@ -168,7 +168,9 @@ namespace UserManagement.Services.Repositories
                                         AssignManager = string.IsNullOrEmpty(Man.FirstName) ? null : Man.FirstName + " " + Man.LastName,
                                         AssignHR = string.IsNullOrEmpty(hr.FirstName) ? null : hr.FirstName + " " + hr.LastName,
                                         AssignedManagerId = u.AssignedManagerId,
-                                        AssignedHrId = u.AssignedHrId
+                                        AssignedHrId = u.AssignedHrId,
+                                        AssignManagerEmail = Man.Email,
+                                        AssignHREmail = hr.Email
                                     }).FirstOrDefaultAsync();
                 return result;
             }

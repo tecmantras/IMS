@@ -48,7 +48,7 @@ namespace UserManagement.Services.Repositories
 
                 // Configure the SMTP client
                 var emailConfiguration = new EmailConfigurationViewModel();
-                emailConfiguration.SmtpType = "smtp.gmail.com";//_configuration.GetSection("EmailConfiguration").Value;
+                emailConfiguration.SmtpType = "smtp.gmail.com";//_configuration["EmailConfiguration:smtpPort"];
                 emailConfiguration.SmtpPort = 587;// Convert.ToInt32(_configuration.GetSection("EmailConfiguration:smtpPort").Value);
                 emailConfiguration.EmailSender = "gourav.tecmantras@gmail.com";// _configuration.GetSection("EmailConfiguration:EmailSender").Value;
                 emailConfiguration.Password = "dkzdjhjpvsqzgtdr";// _configuration.GetSection("EmailConfiguration:Password").Value;

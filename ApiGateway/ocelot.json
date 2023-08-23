@@ -43,14 +43,7 @@
           "Port": 80
         }
       ],
-      "DownstreamPathTemplate": "/api/Account/GetAllUser",
-      "AuthenticationOptions": {
-        "AuthenticationProviderKey": "Bearer",
-        "AllowedScopes": []
-      },
-      "RouteClaimsRequirement": {
-        "Role": [ "HR,Admin,Manager" ]
-      }
+      "DownstreamPathTemplate": "/api/Account/GetAllUser"
     },
     {
       "UpstreamPathTemplate": "/api/Account/GetUser/{Email}",
@@ -445,8 +438,68 @@
         }
       ],
       "DownstreamPathTemplate": "/api/UserLeave/RemainingLeaveCount/{userId}"
+    },
+    //Time Management
+    {
+      "UpstreamPathTemplate": "/api/EmployeeActivity/GetAllEmployeeActivity",
+      "UpstreamHttpMethod": [ "get" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8009
+        }
+      ],
+      "DownstreamPathTemplate": "/api/EmployeeActivity/GetAllEmployeeActivity"
+    },
+    {
+      "UpstreamPathTemplate": "/api/EmployeeActivity/GetAllUserActivity/{userId}",
+      "UpstreamHttpMethod": [ "get" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8009
+        }
+      ],
+      "DownstreamPathTemplate": "/api/EmployeeActivity/GetAllUserActivity/{userId}"
+    },
+    {
+      "UpstreamPathTemplate": "/api/EmployeeActivity/GetUserActivity/{userId}",
+      "UpstreamHttpMethod": [ "get" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8009
+        }
+      ],
+      "DownstreamPathTemplate": "/api/EmployeeActivity/GetUserActivity/{userId}"
+    },
+    {
+      "UpstreamPathTemplate": "/api/EmployeeActivity/UserActivityStatus/{userId}",
+      "UpstreamHttpMethod": [ "get" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8009
+        }
+      ],
+      "DownstreamPathTemplate": "/api/EmployeeActivity/UserActivityStatus/{userId}"
+    },
+    {
+      "UpstreamPathTemplate": "/api/EmployeeActivity/AddActivity",
+      "UpstreamHttpMethod": [ "post" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8009
+        }
+      ],
+      "DownstreamPathTemplate": "/api/EmployeeActivity/AddActivity"
     }
-
   ],
   "GlobalConfiguration": {
     "BaseUrl": "https://localhost:8003"

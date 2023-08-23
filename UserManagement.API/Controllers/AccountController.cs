@@ -47,26 +47,49 @@ namespace UserManagement.API.Controllers
         [HttpPost("InsertRole")]
         public async Task<IActionResult> CreateRoleAsync(RoleViewModel model)
         {
-            if (ModelState.IsValid)
+            try
             {
-                // var result = await _accountService.CreateRoleAsync(model);
-                IdentityRole identityRole = new IdentityRole
+                if (ModelState.IsValid)
                 {
-                    Name = model.RoleName
+                    // var result = await _accountService.CreateRoleAsync(model);
+                    IdentityRole identityRole = new IdentityRole
+                    {
+                        Name = model.RoleName
+                    };
+                    var result = await _roleManager.CreateAsync(identityRole);
+                    if (result.Succeeded)
+                    {
+
+                        return new OkObjectResult(new ResponseMessageViewModel
+                        {
+                            IsSuccess = result.Succeeded,
+                            Data = model
+                        });
+                    }
+                    else
+                    {
+                        return new OkObjectResult(new ResponseMessageViewModel
+                        {
+                            IsSuccess = result.Succeeded,
+                            Data = model
+                        });
+                    }
+                }
+                var response = new ResponseMessageViewModel
+                {
+                    IsSuccess = false,
+                    Data = model,
+                    Message = "Model is not validate"
                 };
-                var result = await _roleManager.CreateAsync(identityRole);
-                if (result.Succeeded == true)
-                {
-                    return new OkObjectResult(new { succeded = true, model });
-                }
-                else
-                {
-                    return new BadRequestObjectResult(new { succeded = false });
-                }
+                return new OkObjectResult(response);
             }
-            else
+            catch (Exception ex)
             {
-                return new BadRequestObjectResult(new { succeded = false });
+                return new OkObjectResult(new ResponseMessageViewModel
+                {
+                    IsSuccess = false,
+                    Message = ex.Message,
+                });
             }
         }
         [HttpGet("GetAllRole")]
@@ -77,26 +100,44 @@ namespace UserManagement.API.Controllers
                 var GetAllRoles = await _roleManager.Roles.ToListAsync();
                 if (GetAllRoles.Any())
                 {
-                    return new OkObjectResult(new { succeded = true, GetAllRoles });
+                    //return new OkObjectResult(new { succeded = true, GetAllRoles });
+                    return new OkObjectResult(new ResponseMessageViewModel
+                    {
+                        IsSuccess = true,
+                        Data = GetAllRoles
+                    });
                 }
-                return new BadRequestObjectResult(new { succeded = false });
+                return new OkObjectResult(new ResponseMessageViewModel
+                {
+                    IsSuccess = false,
+                    Data = GetAllRoles
+                });
             }
             catch (Exception ex)
             {
-
-                return new BadRequestObjectResult(new { succeded = false, msg = ex.Message });
+                return new OkObjectResult(new ResponseMessageViewModel
+                {
+                    IsSuccess = false,
+                    Message = ex.Message
+                });
             }
         }
 
-        [HttpPost("InsertUser"),Authorize(Roles = "HR,Admin,Manager")]
+        [HttpPost("InsertUser"), Authorize(Roles = "HR,Admin,Manager")]
         public async Task<IActionResult> CreateUserAsync([FromBody] RegisterViewModel model)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    if (model.Role == UserRole.Employee && (string.IsNullOrEmpty(model.AssignedHrId) || string.IsNullOrEmpty(model.AssignedManagerId))){
-                        return new BadRequestObjectResult(new { succeeded = false, msg = "Assign ManagerID or Assign HRID not be null" });
+                    if (model.Role == UserRole.Employee && (string.IsNullOrEmpty(model.AssignedHrId) || string.IsNullOrEmpty(model.AssignedManagerId)))
+                    {
+                        // return new BadRequestObjectResult(new { succeeded = false, msg = "Assign ManagerID or Assign HRID not be null" });
+                        return new OkObjectResult(new ResponseMessageViewModel
+                        {
+                            IsSuccess = false,
+                            Message = "Assign ManagerID or Assign HRID not be null"
+                        });
                     }
                     else
                     {
@@ -167,30 +208,57 @@ namespace UserManagement.API.Controllers
                                     confimEmailModel.UserPassword = model.Password;
                                     confimEmailModel.UserName = user.FirstName + " " + user.LastName;
                                     _ = await _emailHelper.VerifyEmailAsync(confimEmailModel);
-                                    return new OkObjectResult(new { succeded = result, model });
+
+                                    // return new OkObjectResult(new { succeded = result, model });
+                                    return new OkObjectResult(new ResponseMessageViewModel
+                                    {
+                                        IsSuccess = true,
+                                        Data = model
+                                    });
                                 }
                                 else
                                 {
-                                    return new NotFoundObjectResult(new { succeded = false, msg = result.Errors });
+                                    return new OkObjectResult(new ResponseMessageViewModel
+                                    {
+                                        IsSuccess = false,
+                                        Message = result.Errors.ToString()
+                                    }); ;
                                 }
                             }
                             else
                             {
-                                return new NotFoundObjectResult(new { succeeded = false, msg = result.Errors });
+                                return new OkObjectResult(new ResponseMessageViewModel
+                                {
+                                    IsSuccess = false,
+                                    Message = result.Errors.ToString()
+                                }); ;
                             }
                         }
                         else
                         {
-                            return new BadRequestObjectResult(new { succeeded = false, msg = "Email already exist" });
+                            return new OkObjectResult(new ResponseMessageViewModel
+                            {
+                                IsSuccess = false,
+                                Message = "Email already exist"
+                            });
+                            // return new BadRequestObjectResult(new { succeeded = false, msg = "Email already exist" });
                         }
                     }
                 }
-                return new BadRequestObjectResult(new { succeeded = false });
+                return new OkObjectResult(new ResponseMessageViewModel
+                {
+                    IsSuccess = false,
+                    Message = "Model is not validate"
+                });
             }
             catch (Exception ex)
             {
 
-                return new BadRequestObjectResult(new { succeeded = false, ex.Message });
+                return new OkObjectResult(new ResponseMessageViewModel
+                {
+                    IsSuccess = false,
+                    Message = ex.Message
+                });
             }
         }
         [HttpPost("Authenticate")]
@@ -233,7 +301,7 @@ namespace UserManagement.API.Controllers
             }
         }
 
-        [HttpGet("GetAllUser") ,Authorize(Roles = "HR,Admin,Manager,Employee")]
+        [HttpGet("GetAllUser"), Authorize(Roles = "HR,Admin,Manager,Employee")]
 
         public async Task<IActionResult> GetAllUserAsync([FromQuery] int Page, [FromQuery] int PageSize = 10, [FromQuery] string? SearchValue = null)
         {
@@ -242,17 +310,28 @@ namespace UserManagement.API.Controllers
                 var result = await _accountService.GetAllUserAsync(Page, PageSize, SearchValue);
                 if (result != null)
                 {
-                    return new OkObjectResult(new { Succeeded = true, result });
+                    return new OkObjectResult(new ResponseMessageViewModel
+                    {
+                        IsSuccess = true,
+                        Data = result
+                    });
                 }
                 else
                 {
-                    return new OkObjectResult(new { Succeeded = false });
+                    return new OkObjectResult(new ResponseMessageViewModel
+                    {
+                        IsSuccess = false,
+                        Message = "User list not found"
+                    });
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                throw;
+                return new OkObjectResult(new ResponseMessageViewModel
+                {
+                    IsSuccess = false,
+                    Message = ex.Message
+                });
             }
         }
         [HttpGet("GetUser/{Email}")]
@@ -263,20 +342,31 @@ namespace UserManagement.API.Controllers
                 var result = await _accountService.GetByEmailUserAsync(Email);
                 if (result != null)
                 {
-                    return new OkObjectResult(new { Succeeded = true, result });
+                    return new OkObjectResult(new ResponseMessageViewModel
+                    {
+                        IsSuccess = true,
+                        Data = result
+                    });
                 }
                 else
                 {
-                    return new OkObjectResult(new { Succeeded = false });
+                    return new OkObjectResult(new ResponseMessageViewModel
+                    {
+                        IsSuccess = false,
+                        Message = "User not found"
+                    });
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                throw;
+                return new OkObjectResult(new ResponseMessageViewModel
+                {
+                    IsSuccess = false,
+                    Message = ex.Message
+                });
             }
         }
-        [HttpGet("GetManagerUserByManagerRoleId") ,Authorize(Roles = "HR,Admin,Manager")]
+        [HttpGet("GetManagerUserByManagerRoleId"), Authorize(Roles = "HR,Admin,Manager")]
         public async Task<IActionResult> GetUserByManagerRoleId()
         {
             try
@@ -284,21 +374,34 @@ namespace UserManagement.API.Controllers
                 var users = await _accountService.GetUserByManagerRoleId();
                 if (users.Any())
                 {
-                    return new OkObjectResult(new { Succeeded = true, users });
+                    //return new OkObjectResult(new { Succeeded = true, users });
+                    return new OkObjectResult(new ResponseMessageViewModel
+                    {
+                        IsSuccess = true,
+                        Data = users
+                    });
                 }
                 else
                 {
-                    return new BadRequestObjectResult(new { Succeeded = false, Msg = "Manager list not found" });
+                    return new OkObjectResult(new ResponseMessageViewModel
+                    {
+                        IsSuccess = false,
+                        Message = "Manager list not found"
+                    });
+                    // return new BadRequestObjectResult(new { Succeeded = false, Msg = "Manager list not found" });
                 }
 
             }
             catch (Exception ex)
             {
-
-                return new BadRequestObjectResult(new { Succeeded = false, Msg = ex.Message });
+                return new OkObjectResult(new ResponseMessageViewModel
+                {
+                    IsSuccess = false,
+                    Message = ex.Message
+                });
             }
         }
-        [HttpGet("User/{userId}") ,Authorize(Roles = "HR,Admin,Manager,Employee")]
+        [HttpGet("User/{userId}"), Authorize(Roles = "HR,Admin,Manager,Employee")]
         public async Task<IActionResult> GetUserById(string UserId)
         {
             try
@@ -306,11 +409,19 @@ namespace UserManagement.API.Controllers
                 var user = await _accountService.GetUserByIdAsync(UserId);
                 if (user != null)
                 {
-                    return new OkObjectResult(new { succeeded = true, user });
+                    return new OkObjectResult(new ResponseMessageViewModel
+                    {
+                        IsSuccess = true,
+                        Data = user
+                    });
                 }
                 else
                 {
-                    return new BadRequestObjectResult(new { Succeeded = false, Msg = "User not found" });
+                    return new OkObjectResult(new ResponseMessageViewModel
+                    {
+                        IsSuccess = false,
+                        Message = "User not found"
+                    });
                 }
             }
             catch (Exception)
@@ -324,14 +435,27 @@ namespace UserManagement.API.Controllers
         {
             var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
-                return new BadRequestObjectResult(new { succcesdd = false, msg = "User not Found" });
+                return new OkObjectResult(new ResponseMessageViewModel
+                {
+                    IsSuccess = false,
+                    Message = "User not found"
+                });
 
             var result = await _userManager.ConfirmEmailAsync(user, token);
             if (result.Succeeded)
             {
-                return new OkObjectResult(new { succcedd = true, msg = "Email is confirmed" });
+                return new OkObjectResult(new ResponseMessageViewModel
+                {
+                    IsSuccess = true,
+                    Message = "Email is confirmed"
+                });
+
             }
-            return new BadRequestObjectResult(new { succcesdd = false, msg = result.Errors });
+            return new OkObjectResult(new ResponseMessageViewModel
+            {
+                IsSuccess = true,
+                Message = result.Errors.ToString()
+            });
         }
         [HttpPut("UpdateUser"), Authorize(Roles = "HR,Admin,Manager")]
         public async Task<IActionResult> UpdateUserAsync([FromBody] UpdateUserViewModel model)
@@ -380,18 +504,30 @@ namespace UserManagement.API.Controllers
                             _ = _assignUserRepository.Add(assignedUser);
                         }
                         _ = _unitOfWork.commit();
-                        return new OkObjectResult(result.Succeeded);
+                        return new OkObjectResult(new ResponseMessageViewModel
+                        {
+                            IsSuccess = true,
+                            Message = "User Updated"
+                        }); ;
                     }
                     else
                     {
-                        return new NotFoundObjectResult(new { succeded = false, msg = result.Errors });
+                        return new OkObjectResult(new ResponseMessageViewModel
+                        {
+                            IsSuccess = false,
+                            Message = result.Errors.ToString()
+                        }); ;
                     }
 
 
                 }
                 else
                 {
-                    return new NotFoundObjectResult(new { succeded = false, msg = "user not found" });
+                    return new OkObjectResult(new ResponseMessageViewModel
+                    {
+                        IsSuccess = false,
+                        Message = "User not found"
+                    });
                 }
             }
             catch (Exception ex)
@@ -412,25 +548,52 @@ namespace UserManagement.API.Controllers
                     user.IsActive = model.IsActive;
                     var result = await _userManager.UpdateAsync(user);
                     _ = _unitOfWork.commit();
-
-                    if (model.IsActive)
+                    if (result.Succeeded)
                     {
-                        return new OkObjectResult(new { succeeded = result.Succeeded, Msg = "User is Activeted" });
+                        if (model.IsActive)
+                        {
+                            return new OkObjectResult(new ResponseMessageViewModel
+                            {
+                                IsSuccess = true,
+                                Message = "User is Activeted"
+                            });
+                            //   return new OkObjectResult(new { succeeded = result.Succeeded, Msg = "User is Activeted" });
+                        }
+                        else
+                        {
+                            return new OkObjectResult(new ResponseMessageViewModel
+                            {
+                                IsSuccess = true,
+                                Message = "User is Deactiveted"
+                            });
+                        }
                     }
                     else
                     {
-                        return new OkObjectResult(new { succeeded = result.Succeeded, Msg = "User is Deactiveted" });
+                        return new OkObjectResult(new ResponseMessageViewModel
+                        {
+                            IsSuccess = true,
+                            Message = result.Errors.ToString()
+                        });
                     }
                 }
                 else
                 {
-                    return new BadRequestObjectResult(new { Succeeded = false, Msg = "user not found" });
+                    return new OkObjectResult(new ResponseMessageViewModel
+                    {
+                        IsSuccess = true,
+                        Message = "User is not found"
+                    }); ;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
-                throw;
+                return new OkObjectResult(new ResponseMessageViewModel
+                {
+                    IsSuccess = true,
+                    Message = ex.Message
+                });
             }
         }
 
@@ -438,15 +601,37 @@ namespace UserManagement.API.Controllers
         [HttpPost("ChangePassword")]
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
         {
-            var user = await _userManager.FindByEmailAsync(model.Email);
-            var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
-            if (result.Succeeded)
+            try
             {
-                return new OkObjectResult(new { succeeded = true, Msg = "Password Updated Successfully" });
+
+                var user = await _userManager.FindByEmailAsync(model.Email);
+                var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+                if (result.Succeeded)
+                {
+                    return new OkObjectResult(new ResponseMessageViewModel
+                    {
+                        IsSuccess = true,
+                        Message = "Password Updated Successfully"
+                    });
+                    // return new OkObjectResult(new { succeeded = true, Msg = "Password Updated Successfully" });
+                }
+                else
+                {
+                    return new OkObjectResult(new ResponseMessageViewModel
+                    {
+                        IsSuccess = false,
+                        Message = result.Errors.ToString()
+                    });
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return new BadRequestObjectResult(new { succeeded = true, Msg = result.Errors });
+
+                return new OkObjectResult(new ResponseMessageViewModel
+                {
+                    IsSuccess = true,
+                    Message = ex.Message
+                });
             }
         }
 
@@ -456,9 +641,17 @@ namespace UserManagement.API.Controllers
             var result = await _accountService.IsEmailExist(email);
             if (result)
             {
-                return new OkObjectResult(new { succedd = result, msg = "Email already Exist" });
+                return new OkObjectResult(new ResponseMessageViewModel
+                {
+                    IsSuccess = result,
+                    Message = "Email already Exist"
+                });
+
             }
-            return new BadRequestObjectResult(new { succedd = result });
+            return new OkObjectResult(new ResponseMessageViewModel
+            {
+                IsSuccess = result,
+            });
         }
         [HttpGet("GetUserByHRRoleId"), Authorize(Roles = "HR,Admin,Manager")]
         public async Task<IActionResult> GetUserByHRRoleId()
@@ -468,18 +661,31 @@ namespace UserManagement.API.Controllers
                 var users = await _accountService.GetUserByHRRoleId();
                 if (users.Any())
                 {
-                    return new OkObjectResult(new { Succeeded = true, users });
+                    return new OkObjectResult(new ResponseMessageViewModel
+                    {
+                        IsSuccess = true,
+                        Data = users
+                    });
+                    //return new OkObjectResult(new { Succeeded = true, users });
                 }
                 else
                 {
-                    return new BadRequestObjectResult(new { Succeeded = false });
+                    return new OkObjectResult(new ResponseMessageViewModel
+                    {
+                        IsSuccess = false,
+                        Message = "User list not found"
+                    });
                 }
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
-                throw;
+                return new OkObjectResult(new ResponseMessageViewModel
+                {
+                    IsSuccess = true,
+                    Message = ex.Message
+                });
             }
         }
         [HttpGet("GetUser/{Id:Guid}"), Authorize(Roles = "HR,Admin,Manager")]
@@ -490,16 +696,28 @@ namespace UserManagement.API.Controllers
                 var listUser = await _accountService.GetUserByManagerOrHRIdAsync(Id);
                 if (listUser != null && listUser.Any())
                 {
-                    return new OkObjectResult(listUser);
+                    return new OkObjectResult(new ResponseMessageViewModel
+                    {
+                        IsSuccess = true,
+                        Data = listUser
+                    });
                 }
                 else
                 {
-                    return new NotFoundObjectResult(false);
+                    return new OkObjectResult(new ResponseMessageViewModel
+                    {
+                        IsSuccess = true,
+                        Message = "User list not found"
+                    });
                 }
             }
             catch (Exception ex)
             {
-                return new BadRequestObjectResult(new { status = false, Msg = ex.Message });
+                return new OkObjectResult(new ResponseMessageViewModel
+                {
+                    IsSuccess = true,
+                    Message = ex.Message
+                });
             }
         }
 

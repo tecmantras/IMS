@@ -68,6 +68,8 @@ namespace UserManagememet.Data.ViewModel
         public int? DepartmentId { get; set; }
         public string? Gender { get; set; }
         public bool Status { get; set; }
+        public string? AssignManagerEmail { get; set; }
+        public string? AssignHREmail { get; set; }
     }
     public class LoginViewModel
     {
