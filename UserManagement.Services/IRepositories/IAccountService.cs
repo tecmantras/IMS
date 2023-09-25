@@ -16,6 +16,7 @@ namespace UserManagement.Services.IRepositories
         Task<bool> IsEmailExist(string email);
         Task<List<UserHRViewModel>> GetUserByHRRoleId();
         Task<List<UserResponseViewModel?>> GetUserByManagerOrHRIdAsync(string UserId);
+        Task<List<UserResponseViewModel?>> GetUserByDepartmentIdAsync(int departmentId);
 
     }
 }

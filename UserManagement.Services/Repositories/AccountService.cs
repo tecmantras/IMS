@@ -307,5 +307,17 @@ namespace UserManagement.Services.Repositories
                 throw;
             }
         }
+
+        public async Task<List<UserResponseViewModel?>> GetUserByDepartmentIdAsync(int departmentId)
+        {
+           var user = await _userRepository.GetAll().Include(x=>x.Department).
+                Where(x=>x.DepartmentId ==departmentId).Select(u=> new UserResponseViewModel
+                {
+                    UserId = u.Id,
+                    FirstName = u.FirstName,
+                    LastName = u.LastName,
+                }).ToListAsync();
+            return user;
+        }
     }
 }

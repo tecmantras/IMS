@@ -721,5 +721,38 @@ namespace UserManagement.API.Controllers
             }
         }
 
+        [HttpGet("GetUserByDepartmentIdAsync"), Authorize(Roles = "HR,Admin,Manager")]
+        public async Task<IActionResult> GetUserByDepartmentIdAsync(int departmentId)
+        {
+            try
+            {
+                var listUser = await _accountService.GetUserByDepartmentIdAsync(departmentId);
+                if (listUser != null && listUser.Any())
+                {
+                    return new OkObjectResult(new ResponseMessageViewModel
+                    {
+                        IsSuccess = true,
+                        Data = listUser
+                    });
+                }
+                else
+                {
+                    return new OkObjectResult(new ResponseMessageViewModel
+                    {
+                        IsSuccess = true,
+                        Message = "User list not found"
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return new OkObjectResult(new ResponseMessageViewModel
+                {
+                    IsSuccess = true,
+                    Message = ex.Message
+                });
+            }
+        }
+
     }
 }

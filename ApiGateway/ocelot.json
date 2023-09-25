@@ -46,6 +46,18 @@
       "DownstreamPathTemplate": "/api/Account/GetAllUser"
     },
     {
+      "UpstreamPathTemplate": "/api/Account/GetUserByDepartmentIdAsync",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "usermanagement.api",
+          "Port": 80
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Account/GetUserByDepartmentIdAsync"
+    },
+    {
       "UpstreamPathTemplate": "/api/Account/GetUser/{Email}",
       "UpstreamHttpMethod": [ "Get" ],
       "DownstreamScheme": "http",
@@ -564,13 +576,25 @@
       "UpstreamPathTemplate": "/api/FestivalLeave/UpdateLeave",
       "UpstreamHttpMethod": [ "post" ],
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ 
+      "DownstreamHostAndPorts": [
         {
           "Host": "host.docker.internal",
           "Port": 8009
         }
       ],
       "DownstreamPathTemplate": "/api/FestivalLeave/UpdateLeave"
+    },
+    {
+      "UpstreamPathTemplate": "/api/FestivalLeave/DeleteFestivalLeave",
+      "UpstreamHttpMethod": [ "post" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8009
+        }
+      ],
+      "DownstreamPathTemplate": "/api/FestivalLeave/DeleteFestivalLeave"
     }
   ],
   "GlobalConfiguration": {
