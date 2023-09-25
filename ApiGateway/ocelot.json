@@ -499,9 +499,81 @@
         }
       ],
       "DownstreamPathTemplate": "/api/EmployeeActivity/AddActivity"
+    },
+    {
+      "UpstreamPathTemplate": "/api/EarlyComingLateGoing/CreateOrUpdateGoingComing",
+      "UpstreamHttpMethod": [ "post" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8009
+        }
+      ],
+      "DownstreamPathTemplate": "/api/EarlyComingLateGoing/CreateOrUpdateGoingComing"
+    },
+    {
+      "UpstreamPathTemplate": "/api/EarlyComingLateGoing/GetAllGoingComingForHROrManager",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8009
+        }
+      ],
+      "DownstreamPathTemplate": "/api/EarlyComingLateGoing/GetAllGoingComingForHROrManager"
+    },
+    {
+      "UpstreamPathTemplate": "/api/EarlyComingLateGoing/GetAllGoingComingForUser",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8009
+        }
+      ],
+      "DownstreamPathTemplate": "/api/EarlyComingLateGoing/GetAllGoingComingForUser"
+    },
+    {
+      "UpstreamPathTemplate": "/api/FestivalLeave/GetAllLeave",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8009
+        }
+      ],
+      "DownstreamPathTemplate": "/api/FestivalLeave/GetAllLeave"
+    },
+    {
+      "UpstreamPathTemplate": "/api/FestivalLeave/AddLeave",
+      "UpstreamHttpMethod": [ "post" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8009
+        }
+      ],
+      "DownstreamPathTemplate": "/api/FestivalLeave/AddLeave"
+    },
+    {
+      "UpstreamPathTemplate": "/api/FestivalLeave/UpdateLeave",
+      "UpstreamHttpMethod": [ "post" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ 
+        {
+          "Host": "host.docker.internal",
+          "Port": 8009
+        }
+      ],
+      "DownstreamPathTemplate": "/api/FestivalLeave/UpdateLeave"
     }
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "https://localhost:8003"
+    "BaseUrl": "http://localhost:8003"
   }
 }
