@@ -15,7 +15,7 @@ namespace UserManagement.Services.IRepositories
         Task<List<UserManagerViewModel>> GetUserByManagerRoleId();
         Task<bool> IsEmailExist(string email);
         Task<List<UserHRViewModel>> GetUserByHRRoleId();
-        Task<List<UserResponseViewModel?>> GetUserByManagerOrHRIdAsync(string UserId);
+        Task<PagedListUserViewModel> GetUserByManagerOrHRIdAsync(string userId, int page, int pageSize = 10, string? searchValue = null);
         Task<List<UserResponseViewModel?>> GetUserByDepartmentIdAsync(int departmentId);
 
     }

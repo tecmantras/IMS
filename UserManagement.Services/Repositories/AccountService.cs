@@ -33,7 +33,7 @@ namespace UserManagement.Services.Repositories
             PagedListUserViewModel pagedList = new PagedListUserViewModel();
 
 
-        
+
 
             var users = from u in _userRepository.GetAll().Include(x => x.Department)
                         join ur in _userRoleRepository.GetAll()
@@ -251,10 +251,11 @@ namespace UserManagement.Services.Repositories
 
         }
 
-        public async Task<List<UserResponseViewModel?>> GetUserByManagerOrHRIdAsync(string UserId)
+        public async Task<PagedListUserViewModel> GetUserByManagerOrHRIdAsync(string userId, int page, int pageSize = 10, string? searchValue = null)
         {
             try
             {
+                PagedListUserViewModel pagedList = new PagedListUserViewModel();
                 var users = from u in _userRepository.GetAll().Include(x => x.Department)
                             join ur in _userRoleRepository.GetAll()
                             on u.Id equals ur.UserId
@@ -263,7 +264,14 @@ namespace UserManagement.Services.Repositories
                             join am in _assignUserRepository.GetAll()
                             on u.Id equals am.UserId into ams
                             from am in ams.DefaultIfEmpty()
-                            where  am.AssignedHrId == UserId || am.AssignedManagerId == UserId && u.IsActive
+                            where am.AssignedHrId == userId || am.AssignedManagerId == userId && u.IsActive &&
+                             (searchValue == null || (
+                              (searchValue != null && u.FirstName.Contains(searchValue)) ||
+                              (searchValue != null && u.LastName.Contains(searchValue)) ||
+                              (searchValue != null && u.Email.Contains(searchValue)) ||
+                              (searchValue != null && r.Name.Contains(searchValue)) ||
+                              (searchValue != null && u.Department.Name.Contains(searchValue)
+                              )))
                             select new UserResponseViewModel
                             {
                                 UserId = u.Id,
@@ -299,7 +307,12 @@ namespace UserManagement.Services.Repositories
                                         AssignedHrId = u.AssignedHrId,
                                         DOJ = u.DOJ
                                     }).ToListAsync();
-                return result;
+                
+                pagedList.userResponses = result.Skip((page - 1) * pageSize)
+             .Take(pageSize)
+             .ToList();
+                pagedList.TotalCount = result.Count();
+                return pagedList;
             }
             catch (Exception)
             {
@@ -310,13 +323,13 @@ namespace UserManagement.Services.Repositories
 
         public async Task<List<UserResponseViewModel?>> GetUserByDepartmentIdAsync(int departmentId)
         {
-           var user = await _userRepository.GetAll().Include(x=>x.Department).
-                Where(x=>x.DepartmentId ==departmentId).Select(u=> new UserResponseViewModel
-                {
-                    UserId = u.Id,
-                    FirstName = u.FirstName,
-                    LastName = u.LastName,
-                }).ToListAsync();
+            var user = await _userRepository.GetAll().Include(x => x.Department).
+                 Where(x => x.DepartmentId == departmentId).Select(u => new UserResponseViewModel
+                 {
+                     UserId = u.Id,
+                     FirstName = u.FirstName,
+                     LastName = u.LastName,
+                 }).ToListAsync();
             return user;
         }
     }

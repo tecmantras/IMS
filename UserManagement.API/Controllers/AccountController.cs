@@ -688,13 +688,13 @@ namespace UserManagement.API.Controllers
                 });
             }
         }
-        [HttpGet("GetUser/{Id:Guid}"), Authorize(Roles = "HR,Admin,Manager")]
-        public async Task<IActionResult> GetUserByManagerOrHRIdAsync(string Id)
+        [HttpGet("GetUserByManagerId"), Authorize(Roles = "HR,Admin,Manager")]
+        public async Task<IActionResult> GetUserByManagerOrHRIdAsync(string userId, int page, int pageSize = 10, string? searchValue = null)
         {
             try
             {
-                var listUser = await _accountService.GetUserByManagerOrHRIdAsync(Id);
-                if (listUser != null && listUser.Any())
+                var listUser = await _accountService.GetUserByManagerOrHRIdAsync(userId,page,pageSize,searchValue);
+                if (listUser != null && listUser.userResponses.Any())
                 {
                     return new OkObjectResult(new ResponseMessageViewModel
                     {

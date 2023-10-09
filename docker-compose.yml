@@ -24,9 +24,11 @@ services:
     ports:
          - 8002:80
     environment:
+     ASPNETCORE_URLS: http://+:80
         - DB_HOST=dbazureserver
         - DB_NAME=EmployeeManagementDB
         - DB_SA_PASSWORD=Test@123
+
   apigateway:
     container_name: api-gateway
     image: ${DOCKER_REGISTRY-}apigateway
@@ -37,6 +39,8 @@ services:
         - 8003:80
     networks:
         - backend
+    environment:
+     ASPNETCORE_URLS: http://+:80
 
   signinmanagement:
     container_name: signinmanagement-api
@@ -48,6 +52,8 @@ services:
         - backend
     ports:
          - 8004:80
+    environment:
+     ASPNETCORE_URLS: http://+:80
   #leavemanagement.api:
   #  container_name: leavemanagement-api
   #  image: ${DOCKER_REGISTRY-}leavemanagement

@@ -292,7 +292,7 @@
       }
     },
     {
-      "UpstreamPathTemplate": "/api/Account/GetUser/{userId:Guid}",
+      "UpstreamPathTemplate": "/api/Account/GetUserByManagerId",
       "UpstreamHttpMethod": [ "Get", "Post", "Put" ],
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
@@ -301,7 +301,7 @@
           "Port": 80
         }
       ],
-      "DownstreamPathTemplate": "/api/Account/GetUser/{userId:Guid}"
+      "DownstreamPathTemplate": "/api/Account/GetUserByManagerId"
     },
     {
       "UpstreamPathTemplate": "/api/LeaveType",
@@ -513,6 +513,18 @@
       "DownstreamPathTemplate": "/api/EmployeeActivity/AddActivity"
     },
     {
+      "UpstreamPathTemplate": "/api/EmployeeActivity/UpdateActivity",
+      "UpstreamHttpMethod": [ "post" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8009
+        }
+      ],
+      "DownstreamPathTemplate": "/api/EmployeeActivity/UpdateActivity"
+    },
+    {
       "UpstreamPathTemplate": "/api/EarlyComingLateGoing/CreateOrUpdateGoingComing",
       "UpstreamHttpMethod": [ "post" ],
       "DownstreamScheme": "http",
@@ -595,6 +607,79 @@
         }
       ],
       "DownstreamPathTemplate": "/api/FestivalLeave/DeleteFestivalLeave"
+    },
+    // Interview Module
+    {
+      "UpstreamPathTemplate": "/api/Candidate/GetAllCandidates",
+      "UpstreamHttpMethod": [ "get" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8010
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Candidate/GetAllCandidates"
+    },
+    {
+      "UpstreamPathTemplate": "/api/Candidate/AddUpdateCandidate",
+      "UpstreamHttpMethod": [ "post" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8010
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Candidate/AddUpdateCandidate"
+    },
+    {
+      "UpstreamPathTemplate": "/api/Candidate/AddInterview",
+      "UpstreamHttpMethod": [ "post" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8010
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Candidate/AddInterview"
+    },
+    {
+      "UpstreamPathTemplate": "/api/Candidate/GetAllCandidatesForInterviewer",
+      "UpstreamHttpMethod": [ "get" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8010
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Candidate/GetAllCandidatesForInterviewer"
+    },
+    {
+      "UpstreamPathTemplate": "/api/Candidate/UpdateInterviewStatus",
+      "UpstreamHttpMethod": [ "post" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8010
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Candidate/UpdateInterviewStatus"
+    },
+    {
+      "UpstreamPathTemplate": "/api/Candidate/GetCandidateById",
+      "UpstreamHttpMethod": [ "get" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8010
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Candidate/GetCandidateById"
     }
   ],
   "GlobalConfiguration": {

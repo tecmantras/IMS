@@ -57,12 +57,13 @@ namespace SignInManagement.Data
         {
             try
             {
-
+                var userFullName = user.FirstName + " " + user.LastName;
                 var claims = new List<Claim>{
 
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString()),
                 new Claim("Username", user.Email),
+                new Claim("userFullName", userFullName),
                 new Claim(ClaimTypes.NameIdentifier,user.UserId),
                 new Claim("UserId",user.UserId),
                 new Claim(ClaimTypes.Role, user.Role)
