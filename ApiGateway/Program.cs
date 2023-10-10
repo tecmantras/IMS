@@ -17,7 +17,7 @@ builder.Services.AddOcelot(builder.Configuration);
 builder.Services.ADDCustomJwtAuthentication();
 var app = builder.Build();
 app.UseCors("corspolicy");
-
+app.UseStaticFiles();
 await app.UseOcelot();
 app.UseAuthentication();
 app.UseAuthorization();

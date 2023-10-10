@@ -221,8 +221,8 @@ namespace UserManagement.API.Controllers
                                     return new OkObjectResult(new ResponseMessageViewModel
                                     {
                                         IsSuccess = false,
-                                        Message = result.Errors.ToString()
-                                    }); ;
+                                        Message = result.Errors.Select(x => x.Description).FirstOrDefault()
+                                    }); ; ;
                                 }
                             }
                             else
@@ -230,7 +230,7 @@ namespace UserManagement.API.Controllers
                                 return new OkObjectResult(new ResponseMessageViewModel
                                 {
                                     IsSuccess = false,
-                                    Message = result.Errors.ToString()
+                                    Message = result.Errors.Select(x=>x.Description).FirstOrDefault()
                                 }); ;
                             }
                         }

@@ -8,6 +8,7 @@ using UserManagememet.Data.Model;
 using UserManagement.Services.IRepositories;
 using UserManagement.Services.Repositories;
 using SignInManagement.Data;
+using UserManagememet.Data.Seeder;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 
+builder.Services.AddHostedService<SetupIdentityDataSeeder>();
 builder.Services.AddCors(op =>
 {
     op.AddPolicy("corpolicy", builder => builder.WithOrigins("http://localhost:3000", "http://192.168.1.8:3000").AllowAnyMethod()
@@ -64,14 +66,14 @@ builder.Services.AddScoped(typeof(IService<>), typeof(Service<>));
 builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
 builder.Services.AddTransient<IAccountService, AccountService>();
 builder.Services.AddTransient<IEmailHelper, EmailHelper>();
+builder.Services.AddTransient<IdentityDataSeeder, IdentityDataSeeder>();
 var app = builder.Build();
 app.UseCors("corpolicy");
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
+
     app.UseSwagger();
     app.UseSwaggerUI();
-}
+
 
 //app.UseHttpsRedirection();
 

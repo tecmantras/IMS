@@ -680,6 +680,18 @@
         }
       ],
       "DownstreamPathTemplate": "/api/Candidate/GetCandidateById"
+    },
+    {
+      "UpstreamPathTemplate": "/api/Candidate/IsEmailExists/{Email}",
+      "UpstreamHttpMethod": [ "get" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8010
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Candidate/IsEmailExists/{Email}"
     }
   ],
   "GlobalConfiguration": {

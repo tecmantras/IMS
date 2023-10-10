@@ -19,8 +19,8 @@ namespace UserManagememet.Data.Model
         [Required]
         public string LastName { get; set; }
         public string Gender { get; set; }
-        public DateTime DOB { get; set; }
-        public DateTime JoiningDate { get; set; }
+        public DateTime? DOB { get; set; }
+        public DateTime? JoiningDate { get; set; }
         [MaxLength(100)]
         public string Address { get; set; }
         public int? DepartmentId { get; set; }

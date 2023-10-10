@@ -63,8 +63,8 @@ namespace UserManagement.Services.Repositories
                             AssignedHrId = am.AssignedHrId,
                             IsActive = u.IsActive,
                             Address = u.Address,
-                            DOB = u.DOB.ToString(ConstantData.DateFormat),
-                            DOJ = u.JoiningDate.ToString(ConstantData.DateFormat),
+                            DOB = u.DOB.Value.ToString(ConstantData.DateFormat),
+                            DOJ = u.JoiningDate.Value.ToString(ConstantData.DateFormat),
                             DepartmentId = u.DepartmentId,
                             Gender = u.Gender
                         };
@@ -283,7 +283,8 @@ namespace UserManagement.Services.Repositories
                                 Department = u.Department.Name,
                                 AssignedManagerId = am.AssignedManagerId,
                                 AssignedHrId = am.AssignedHrId,
-                                DOJ = u.JoiningDate.ToString(ConstantData.DateFormat)
+                                DOJ = u.JoiningDate.Value.ToString(ConstantData.DateFormat),
+                                IsActive = u.IsActive
                             };
                 var result = await (from u in users
                                     join Man in _userRepository.GetAll()
@@ -305,7 +306,8 @@ namespace UserManagement.Services.Repositories
                                         AssignHR = string.IsNullOrEmpty(hr.FirstName) ? null : hr.FirstName + " " + hr.LastName,
                                         AssignedManagerId = u.AssignedManagerId,
                                         AssignedHrId = u.AssignedHrId,
-                                        DOJ = u.DOJ
+                                        DOJ = u.DOJ,
+                                        IsActive = u.IsActive
                                     }).ToListAsync();
                 
                 pagedList.userResponses = result.Skip((page - 1) * pageSize)
