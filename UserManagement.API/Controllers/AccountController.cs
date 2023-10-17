@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using SignInManagement.Data.Model;
 using System.Data;
 using System.Net;
@@ -141,7 +142,6 @@ namespace UserManagement.API.Controllers
                     }
                     else
                     {
-
                         var mailResult = await _accountService.IsEmailExist(model.Email);
                         if (!mailResult)
                         {
@@ -213,7 +213,8 @@ namespace UserManagement.API.Controllers
                                     return new OkObjectResult(new ResponseMessageViewModel
                                     {
                                         IsSuccess = true,
-                                        Data = model
+                                        Data = model,
+                                        Message = "User Added"
                                     });
                                 }
                                 else
@@ -224,6 +225,7 @@ namespace UserManagement.API.Controllers
                                         Message = result.Errors.Select(x => x.Description).FirstOrDefault()
                                     }); ; ;
                                 }
+
                             }
                             else
                             {
@@ -302,7 +304,6 @@ namespace UserManagement.API.Controllers
         }
 
         [HttpGet("GetAllUser"), Authorize(Roles = "HR,Admin,Manager,Employee")]
-
         public async Task<IActionResult> GetAllUserAsync([FromQuery] int Page, [FromQuery] int PageSize = 10, [FromQuery] string? SearchValue = null)
         {
             try
@@ -388,7 +389,6 @@ namespace UserManagement.API.Controllers
                         IsSuccess = false,
                         Message = "Manager list not found"
                     });
-                    // return new BadRequestObjectResult(new { Succeeded = false, Msg = "Manager list not found" });
                 }
 
             }
@@ -400,7 +400,7 @@ namespace UserManagement.API.Controllers
                     Message = ex.Message
                 });
             }
-        }
+        }    
         [HttpGet("User/{userId}"), Authorize(Roles = "HR,Admin,Manager,Employee")]
         public async Task<IActionResult> GetUserById(string UserId)
         {
@@ -457,13 +457,16 @@ namespace UserManagement.API.Controllers
                 Message = result.Errors.ToString()
             });
         }
+
         [HttpPut("UpdateUser"), Authorize(Roles = "HR,Admin,Manager")]
         public async Task<IActionResult> UpdateUserAsync([FromBody] UpdateUserViewModel model)
         {
             try
             {
+
                 DateTime? date = null;
                 var user = await _userManager.FindByIdAsync(model.UserId);
+                var email = user.Email;
                 if (user != null)
                 {
                     user.FirstName = !string.IsNullOrEmpty(model.FirstName) ? model.FirstName : user.FirstName;
@@ -475,6 +478,33 @@ namespace UserManagement.API.Controllers
                     user.Gender = !string.IsNullOrEmpty(model.Gender) ? model.Gender : user.Gender;
                     user.DepartmentId = model.DepartmentId == null ? user.DepartmentId : model.DepartmentId;
 
+                    if (email != user.Email)
+                    {
+                        var mailResult = await _accountService.IsEmailExist(model.Email);
+                        if (mailResult)
+                        {
+                            return new OkObjectResult(new ResponseMessageViewModel
+                            {
+                                IsSuccess = false,
+                                Message = "Email already exist"
+                            });
+                        }
+                        else
+                        {
+                            user.EmailConfirmed = false;
+                            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                            var ocelotUrl = _configuration.GetValue<string>("Ocelot:BaseUrl");
+                            var frontEnd = _configuration.GetValue<string>("FrontEnd:BaseUrl");
+                            var endPoint = _configuration.GetValue<string>("FrontEnd:EndPoint");
+                            var confimationLink = $"{ocelotUrl}/api/Account/ConfirmEmail?token={Uri.EscapeDataString(token)}&email={user.Email}";
+                            ConfimEmailRequestViewModel confimEmailModel = new ConfimEmailRequestViewModel();
+                            confimEmailModel.UserEmail = user.Email;
+                            confimEmailModel.ConfirmEmailLink = confimationLink;
+                            confimEmailModel.UserName = user.FirstName + " " + user.LastName;
+                            _ = await _emailHelper.VerifyEmailAsync(confimEmailModel);
+                        }
+
+                    }
                     var result = await _userManager.UpdateAsync(user);
                     if (result.Succeeded)
                     {
@@ -518,7 +548,6 @@ namespace UserManagement.API.Controllers
                             Message = result.Errors.ToString()
                         }); ;
                     }
-
 
                 }
                 else
@@ -635,6 +664,11 @@ namespace UserManagement.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Check that the given email is already exists or not
+        /// </summary>
+        /// <param name="email"></param>
+        /// <returns>If email already exists then true otherwise false</returns>
         [HttpGet("IsEmailExist/{email}")]
         public async Task<IActionResult> IsEmailExist(string email)
         {
@@ -693,7 +727,7 @@ namespace UserManagement.API.Controllers
         {
             try
             {
-                var listUser = await _accountService.GetUserByManagerOrHRIdAsync(userId,page,pageSize,searchValue);
+                var listUser = await _accountService.GetUserByManagerOrHRIdAsync(userId, page, pageSize, searchValue);
                 if (listUser != null && listUser.userResponses.Any())
                 {
                     return new OkObjectResult(new ResponseMessageViewModel
@@ -749,6 +783,167 @@ namespace UserManagement.API.Controllers
                 return new OkObjectResult(new ResponseMessageViewModel
                 {
                     IsSuccess = true,
+                    Message = ex.Message
+                });
+            }
+        }
+
+        /// <summary>
+        /// Check Manager Has Assigned User Or Not
+        /// </summary>
+        /// <param name="ManagerId"></param>
+        /// <returns>If Manager has Assigned User then return True otherwise returns false</returns>
+
+        [HttpGet("CheckAssignUsersByManager"), Authorize(Roles = "HR,Admin,Manager")]
+        public async Task<IActionResult> CheckAssignUsersByManager(string ManagerId)
+        {
+            try
+            {
+                var users = await _accountService.CheckAssignUsersByManager(ManagerId);
+                if (users)
+                {
+                    return new OkObjectResult(new ResponseMessageViewModel
+                    {
+                        IsSuccess = true,
+                        Message = "Manager has Assigned Users"
+                    });
+                }
+                else
+                {
+                    return new OkObjectResult(new ResponseMessageViewModel
+                    {
+                        IsSuccess = false,
+                        Message = "Manager has not any assigned users"
+                    });
+                    // return new BadRequestObjectResult(new { Succeeded = false, Msg = "Manager list not found" });
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return new OkObjectResult(new ResponseMessageViewModel
+                {
+                    IsSuccess = false,
+                    Message = ex.Message
+                });
+            }
+        }
+        /// <summary>
+        /// Check Hr Has Assigned User Or Not
+        /// </summary>
+        /// <param name="ManagerId"></param>
+        /// <returns>If Hr has Assigned User then return True otherwise returns false</returns>
+
+        [HttpGet("CheckAssignUsersByHrId"), Authorize(Roles = "HR,Admin,Manager")]
+        public async Task<IActionResult> CheckAssignUsersByHrId(string HrId)
+        {
+            try
+            {
+                var users = await _accountService.CheckAssignUsersByHrId(HrId);
+                if (users)
+                {
+                    return new OkObjectResult(new ResponseMessageViewModel
+                    {
+                        IsSuccess = true,
+                        Message = "Hr has Assigned Users"
+                    });
+                }
+                else
+                {
+                    return new OkObjectResult(new ResponseMessageViewModel
+                    {
+                        IsSuccess = false,
+                        Message = "Hr has not any assigned users"
+                    });
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return new OkObjectResult(new ResponseMessageViewModel
+                {
+                    IsSuccess = false,
+                    Message = ex.Message
+                });
+            }
+        }
+
+        /// <summary>
+        /// Update Manager if Manager IsActive status is false
+        /// </summary>
+        /// <param name="ManagerId"></param>
+        /// <param name="NewManagerId"></param>
+        /// <returns>If Manager is not active then Assigned Manager is updated by new Manager</returns>
+        [HttpPost("UpdateManager"), Authorize(Roles = "HR,Admin")]
+        public async Task<IActionResult> UpdateManager(string ManagerId, string NewManagerId)
+        {
+            try
+            {
+                var users = await _accountService.UpdateManager(ManagerId, NewManagerId);
+                if (users.IsSuccess)
+                {
+                    return new OkObjectResult(new ResponseMessageViewModel
+                    {
+                        IsSuccess = true,
+                        Data = null,
+                        Message="Manager Updated"
+                    });
+                }
+                else
+                {
+                    return new OkObjectResult(new ResponseMessageViewModel
+                    {
+                        IsSuccess = false,
+                        Message = "Faild to update manager"
+                    });
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return new OkObjectResult(new ResponseMessageViewModel
+                {
+                    IsSuccess = false,
+                    Message = ex.Message
+                });
+            }
+        }
+
+        /// <summary>
+        /// Get All Manager List
+        /// </summary>
+        /// <param name="Page"></param>
+        /// <param name="PageSize"></param>
+        /// <param name="SearchValue"></param>
+        /// <returns></returns>
+        [HttpGet("GetAllUserManager"), Authorize(Roles = "HR,Admin,Manager")]
+        public async Task<IActionResult> GetAllUserManager([FromQuery] int Page, [FromQuery] int PageSize = 10, [FromQuery] string? SearchValue = null)
+        {
+            try
+            {
+                var result = await _accountService.GetAllUserManager(Page, PageSize, SearchValue);
+                if (result != null)
+                {
+                    return new OkObjectResult(new ResponseMessageViewModel
+                    {
+                        IsSuccess = true,
+                        Data = result
+                    });
+                }
+                else
+                {
+                    return new OkObjectResult(new ResponseMessageViewModel
+                    {
+                        IsSuccess = false,
+                        Message = "User list not found"
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return new OkObjectResult(new ResponseMessageViewModel
+                {
+                    IsSuccess = false,
                     Message = ex.Message
                 });
             }

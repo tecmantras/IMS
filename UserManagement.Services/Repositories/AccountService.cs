@@ -31,10 +31,6 @@ namespace UserManagement.Services.Repositories
         public async Task<PagedListUserViewModel> GetAllUserAsync(int Page, int PageSize = 10, string? SearchValue = null)
         {
             PagedListUserViewModel pagedList = new PagedListUserViewModel();
-
-
-
-
             var users = from u in _userRepository.GetAll().Include(x => x.Department)
                         join ur in _userRoleRepository.GetAll()
                         on u.Id equals ur.UserId
@@ -43,13 +39,13 @@ namespace UserManagement.Services.Repositories
                         join am in _assignUserRepository.GetAll()
                         on u.Id equals am.UserId into ams
                         from am in ams.DefaultIfEmpty()
-                        where !u.IsDeleted && (SearchValue == null || (
+                        where !u.IsDeleted && ((SearchValue == null || (
                               (SearchValue != null && u.FirstName.Contains(SearchValue)) ||
                               (SearchValue != null && u.LastName.Contains(SearchValue)) ||
                               (SearchValue != null && u.Email.Contains(SearchValue)) ||
                               (SearchValue != null && r.Name.Contains(SearchValue)) ||
                               (SearchValue != null && u.Department.Name.Contains(SearchValue)
-                              )))
+                              ))))
                         select new UserResponseViewModel
                         {
                             UserId = u.Id,
@@ -185,12 +181,13 @@ namespace UserManagement.Services.Repositories
         {
             try
             {
+
                 var users = await (from u in _userRepository.GetAll()
                                    join ur in _userRoleRepository.GetAll()
                                    on u.Id equals ur.UserId
                                    join r in _roleRepository.GetAll()
                                    on ur.RoleId equals r.Id
-                                   where r.Name == UserRole.Manager
+                                   where (r.Name == UserRole.Manager && u.IsActive == true)
                                    select new UserManagerViewModel
                                    {
                                        UserId = u.Id,
@@ -309,7 +306,7 @@ namespace UserManagement.Services.Repositories
                                         DOJ = u.DOJ,
                                         IsActive = u.IsActive
                                     }).ToListAsync();
-                
+
                 pagedList.userResponses = result.Skip((page - 1) * pageSize)
              .Take(pageSize)
              .ToList();
@@ -334,5 +331,122 @@ namespace UserManagement.Services.Repositories
                  }).ToListAsync();
             return user;
         }
+        public async Task<bool> CheckAssignUsersByManager(string ManagerId)
+        {
+            try
+            {
+                var users = await _assignUserRepository.GetAll().Where(x => (x.AssignedManagerId == ManagerId && x.IsActive == true)).AnyAsync();
+                if (users)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<bool> CheckAssignUsersByHrId(string HrId)
+        {
+            try
+            {
+                var users = await _assignUserRepository.GetAll().Where(x => (x.AssignedHrId == HrId && x.IsActive == true)).AnyAsync();
+                if (users)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        public async Task<ResponseMessageViewModel> UpdateManager(string ManagerId,string NewManagerId)
+        {
+            try
+            {
+                var users = await _assignUserRepository.GetAll().Where(x => (x.AssignedManagerId == ManagerId && x.IsActive == false))
+                .ToListAsync();
+                if (users.Any())
+                {
+                    foreach (var updateuser in users)
+                    {
+                        updateuser.AssignedManagerId = NewManagerId;
+                        updateuser.IsActive = true;
+                        _ = _assignUserRepository.Update(updateuser);
+                        _ = _unitOfWork.commit();
+                    }
+                    return new ResponseMessageViewModel
+                    {
+                        IsSuccess = true,
+                        Message = "Manager Updated"
+                    };
+                }
+                else
+                {
+                    return new ResponseMessageViewModel
+                    {
+                        IsSuccess = false,
+                        Message = "Failed to update manager"
+                    };
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<PagedListUserViewModel> GetAllUserManager(int Page, int PageSize = 10, string? SearchValue = null)
+        {
+            PagedListUserViewModel pagedList = new PagedListUserViewModel();
+
+            var users = (from u in _userRepository.GetAll()
+                         join ur in _userRoleRepository.GetAll()
+                         on u.Id equals ur.UserId
+                         join r in _roleRepository.GetAll()
+                         on ur.RoleId equals r.Id
+                         //join am in _assignUserRepository.GetAll()
+                         //on u.Id equals am.UserId
+                         where (r.Name == UserRole.Manager && u.IsActive == true) && ((SearchValue == null || (
+                        (SearchValue != null && u.FirstName.Contains(SearchValue)) ||
+                        (SearchValue != null && u.LastName.Contains(SearchValue)) ||
+                        (SearchValue != null && u.Email.Contains(SearchValue)) ||
+                        (SearchValue != null && r.Name.Contains(SearchValue)) ||
+                        (SearchValue != null && u.Department.Name.Contains(SearchValue)
+                        ))))
+                         select new UserResponseViewModel
+                               {
+                                   UserId = u.Id,
+                                   FirstName = u.FirstName,
+                                   LastName = u.LastName,
+                                   Email = u.Email,
+                                   Phone = u.PhoneNumber,
+                                   Role = r.Name,
+                                   Department = u.Department.Name,
+                                   IsActive = u.IsActive,
+                                   Address = u.Address,
+                                   DOB = u.DOB.ToString(ConstantData.DateFormat),
+                                   DOJ = u.JoiningDate.ToString(ConstantData.DateFormat),
+                                   DepartmentId = u.DepartmentId,
+                                   Gender = u.Gender
+
+                               });
+            pagedList.userResponses = await users.Skip((Page - 1) * PageSize)
+            .Take(PageSize).ToListAsync();
+            pagedList.TotalCount = users.Count();
+            return pagedList;
+
+        }
+
     }
 }

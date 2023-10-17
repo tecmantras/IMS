@@ -304,6 +304,55 @@
       "DownstreamPathTemplate": "/api/Account/GetUserByManagerId"
     },
     {
+      "UpstreamPathTemplate": "/api/Account/GetAllUserManager",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "usermanagement.api",
+          "Port": 80
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Account/GetAllUserManager"
+    },
+    {
+      "UpstreamPathTemplate": "/api/Account/CheckAssignUsersByManager",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "usermanagement.api",
+          "Port": 80
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Account/CheckAssignUsersByManager"
+    },
+    {
+      "UpstreamPathTemplate": "/api/Account/CheckAssignUsersByHrId",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "usermanagement.api",
+          "Port": 80
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Account/CheckAssignUsersByHrId"
+    },
+    {
+      "UpstreamPathTemplate": "/api/Account/UpdateManager",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "usermanagement.api",
+          "Port": 80
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Account/UpdateManager"
+    },
+    // Leave Management
+    {
       "UpstreamPathTemplate": "/api/LeaveType",
       "UpstreamHttpMethod": [ "Get", "Post", "Put" ],
       "DownstreamScheme": "http",
