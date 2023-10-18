@@ -426,6 +426,7 @@ namespace UserManagement.Services.Repositories
                         ))))
                          select new UserResponseViewModel
                                {
+                            
                                    UserId = u.Id,
                                    FirstName = u.FirstName,
                                    LastName = u.LastName,
@@ -435,8 +436,8 @@ namespace UserManagement.Services.Repositories
                                    Department = u.Department.Name,
                                    IsActive = u.IsActive,
                                    Address = u.Address,
-                                   DOB = u.DOB.ToString(ConstantData.DateFormat),
-                                   DOJ = u.JoiningDate.ToString(ConstantData.DateFormat),
+                                   DOB = u.DOB.Value.ToString(ConstantData.DateFormat),
+                                   DOJ = u.JoiningDate.Value.ToString(ConstantData.DateFormat),
                                    DepartmentId = u.DepartmentId,
                                    Gender = u.Gender
 
