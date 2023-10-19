@@ -500,6 +500,18 @@
       ],
       "DownstreamPathTemplate": "/api/UserLeave/RemainingLeaveCount/{userId}"
     },
+    {
+      "UpstreamPathTemplate": "/api/UserLeave/UpdateLeave",
+      "UpstreamHttpMethod": [ "post" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8005
+        }
+      ],
+      "DownstreamPathTemplate": "/api/UserLeave/UpdateLeave"
+    },
     //Time Management
     {
       "UpstreamPathTemplate": "/api/EmployeeActivity/GetAllEmployeeActivity",

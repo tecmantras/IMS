@@ -36,7 +36,7 @@ namespace UserManagement.API.Controllers
                     var token = await _userManager.GeneratePasswordResetTokenAsync(user);
                     if (token != null)
                     {
-                        user.UserToken = Uri.EscapeDataString(token); ;
+                        user.UserToken = Uri.EscapeDataString(token);
                         await _userManager.UpdateAsync(user);
                         var frontEnd = _configuration.GetValue<string>("FrontEnd:BaseUrl");
                         var endPoint = _configuration.GetValue<string>("FrontEnd:EndPoint");

@@ -71,6 +71,7 @@ namespace UserManagement.Services.Repositories
                          join hr in _userRepository.GetAll()
                          on u.AssignedHrId equals hr.Id into hrs
                          from hr in hrs.DefaultIfEmpty()
+                         orderby u.FirstName
                          select new UserResponseViewModel
                          {
                              UserId = u.UserId,
@@ -192,7 +193,7 @@ namespace UserManagement.Services.Repositories
                                    {
                                        UserId = u.Id,
                                        Name = u.FirstName + " " + u.LastName
-                                   }).ToListAsync();
+                                   }).OrderBy(x => x.Name).ToListAsync();
                 return users;
             }
             catch (Exception)
@@ -237,7 +238,7 @@ namespace UserManagement.Services.Repositories
                                    {
                                        UserId = u.Id,
                                        Name = u.FirstName + " " + u.LastName,
-                                   }).ToListAsync();
+                                   }).OrderBy(x => x.Name).ToListAsync();
                 return users;
             }
             catch (Exception)
@@ -305,7 +306,7 @@ namespace UserManagement.Services.Repositories
                                         AssignedHrId = u.AssignedHrId,
                                         DOJ = u.DOJ,
                                         IsActive = u.IsActive
-                                    }).ToListAsync();
+                                    }).OrderBy(x => x.FirstName).ToListAsync();
 
                 pagedList.userResponses = result.Skip((page - 1) * pageSize)
              .Take(pageSize)
@@ -328,7 +329,7 @@ namespace UserManagement.Services.Repositories
                      UserId = u.Id,
                      FirstName = u.FirstName,
                      LastName = u.LastName,
-                 }).ToListAsync();
+                 }).OrderBy(x => x.FirstName).ToListAsync();
             return user;
         }
         public async Task<bool> CheckAssignUsersByManager(string ManagerId)
@@ -424,6 +425,7 @@ namespace UserManagement.Services.Repositories
                         (SearchValue != null && r.Name.Contains(SearchValue)) ||
                         (SearchValue != null && u.Department.Name.Contains(SearchValue)
                         ))))
+                        orderby u.FirstName
                          select new UserResponseViewModel
                                {
                             

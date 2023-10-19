@@ -9,8 +9,8 @@ builder.Configuration.SetBasePath(builder.Environment.ContentRootPath)
 var urls = builder.Configuration.GetValue<string>("FrontEndUrls:urls");
 builder.Services.AddCors(op =>
 {
-    op.AddPolicy("corspolicy", builder => builder.WithOrigins("http://localhost:3000", "http://192.168.1.8:3000").AllowAnyMethod()
-    .AllowAnyHeader().AllowCredentials());
+    op.AddPolicy("corspolicy", builder => builder.AllowAnyOrigin().AllowAnyMethod()
+    .AllowAnyHeader());
 
 });
 builder.Services.AddOcelot(builder.Configuration);
