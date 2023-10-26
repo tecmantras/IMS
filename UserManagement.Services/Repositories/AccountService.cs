@@ -39,11 +39,10 @@ namespace UserManagement.Services.Repositories
                         join am in _assignUserRepository.GetAll()
                         on u.Id equals am.UserId into ams
                         from am in ams.DefaultIfEmpty()
-                        where !u.IsDeleted && ((SearchValue == null || (
-                              (SearchValue != null && u.FirstName.Contains(SearchValue)) ||
-                              (SearchValue != null && u.LastName.Contains(SearchValue)) ||
-                              (SearchValue != null && u.Email.Contains(SearchValue)) ||
-                              (SearchValue != null && r.Name.Contains(SearchValue)) ||
+                        where !u.IsDeleted && r.Name!="Manager" &&((SearchValue == null || (
+                              (SearchValue != null && u.FirstName.Contains(SearchValue))
+                              ||(SearchValue != null && u.LastName.Contains(SearchValue)) 
+                             ||(SearchValue != null && r.Name.Contains(SearchValue)) ||
                               (SearchValue != null && u.Department.Name.Contains(SearchValue)
                               ))))
                         select new UserResponseViewModel
@@ -261,8 +260,9 @@ namespace UserManagement.Services.Repositories
                             on ur.RoleId equals r.Id
                             join am in _assignUserRepository.GetAll()
                             on u.Id equals am.UserId into ams
-                            from am in ams.DefaultIfEmpty()
-                            where am.AssignedHrId == userId || am.AssignedManagerId == userId && u.IsActive &&
+                            from am in ams.DefaultIfEmpty() 
+                            orderby u.FirstName ascending
+                            where am.AssignedHrId == userId || am.AssignedManagerId == userId && am.IsActive &&
                              (searchValue == null || (
                               (searchValue != null && u.FirstName.Contains(searchValue)) ||
                               (searchValue != null && u.LastName.Contains(searchValue)) ||
