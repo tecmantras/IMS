@@ -232,7 +232,7 @@ namespace UserManagement.API.Controllers
                                 return new OkObjectResult(new ResponseMessageViewModel
                                 {
                                     IsSuccess = false,
-                                    Message = result.Errors.Select(x=>x.Description).FirstOrDefault()
+                                    Message = result.Errors.Select(x => x.Description).FirstOrDefault()
                                 }); ;
                             }
                         }
@@ -400,7 +400,7 @@ namespace UserManagement.API.Controllers
                     Message = ex.Message
                 });
             }
-        }    
+        }
         [HttpGet("User/{userId}"), Authorize(Roles = "HR,Admin,Manager,Employee")]
         public async Task<IActionResult> GetUserById(string UserId)
         {
@@ -467,6 +467,7 @@ namespace UserManagement.API.Controllers
                 DateTime? date = null;
                 var user = await _userManager.FindByIdAsync(model.UserId);
                 var email = user.Email;
+
                 if (user != null)
                 {
                     user.FirstName = !string.IsNullOrEmpty(model.FirstName) ? model.FirstName : user.FirstName;
@@ -886,7 +887,7 @@ namespace UserManagement.API.Controllers
                     {
                         IsSuccess = true,
                         Data = null,
-                        Message="Manager Updated"
+                        Message = "Manager Updated"
                     });
                 }
                 else

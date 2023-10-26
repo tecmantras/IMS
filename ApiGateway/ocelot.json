@@ -753,6 +753,79 @@
         }
       ],
       "DownstreamPathTemplate": "/api/Candidate/IsEmailExists/{Email}"
+    },
+    {
+      "UpstreamPathTemplate": "/api/Candidate/CancelInterviewById",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8010
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Candidate/CancelInterviewById"
+    },
+    {
+      "UpstreamPathTemplate": "/api/Candidate/RescheduleInterview",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8010
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Candidate/RescheduleInterview"
+    },
+    {
+      "UpstreamPathTemplate": "/api/TimeActivity/GetUserActivityByDate",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8009
+        }
+      ],
+      "DownstreamPathTemplate": "/api/TimeActivity/GetUserActivityByDate"
+    },
+    {
+      "UpstreamPathTemplate": "/api/TimeActivity/GetUserActivityHours",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8009
+        }
+      ],
+      "DownstreamPathTemplate": "/api/TimeActivity/GetUserActivityHours"
+    },
+    {
+      "UpstreamPathTemplate": "/api/TimeActivity/GetActivity",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8009
+        }
+      ],
+      "DownstreamPathTemplate": "/api/TimeActivity/GetActivity"
+    },
+    //Add activity Controller change
+    {
+      "UpstreamPathTemplate": "/api/TimeActivity/AddActivity",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8009
+        }
+      ],
+      "DownstreamPathTemplate": "/api/TimeActivity/AddActivity"
     }
   ],
   "GlobalConfiguration": {
