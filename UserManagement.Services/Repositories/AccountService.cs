@@ -410,7 +410,7 @@ namespace UserManagement.Services.Repositories
         public async Task<PagedListUserViewModel> GetAllUserManager(int Page, int PageSize = 10, string? SearchValue = null)
         {
             PagedListUserViewModel pagedList = new PagedListUserViewModel();
-
+            var assignuser = _assignUserRepository.GetAll().Where(x=> x.IsActive && !x.IsDeleted );
             var users = (from u in _userRepository.GetAll()
                          join ur in _userRoleRepository.GetAll()
                          on u.Id equals ur.UserId
@@ -428,7 +428,6 @@ namespace UserManagement.Services.Repositories
                         orderby u.FirstName
                          select new UserResponseViewModel
                                {
-                            
                                    UserId = u.Id,
                                    FirstName = u.FirstName,
                                    LastName = u.LastName,
@@ -441,9 +440,10 @@ namespace UserManagement.Services.Repositories
                                    DOB = u.DOB.Value.ToString(ConstantData.DateFormat),
                                    DOJ = u.JoiningDate.Value.ToString(ConstantData.DateFormat),
                                    DepartmentId = u.DepartmentId,
-                                   Gender = u.Gender
+                                   Gender = u.Gender,
+                                   TotalUsers= assignuser.Where(x=>x.AssignedManagerId == u.Id).Count()
 
-                               });
+                         });
             pagedList.userResponses = await users.Skip((Page - 1) * PageSize)
             .Take(PageSize).ToListAsync();
             pagedList.TotalCount = users.Count();
