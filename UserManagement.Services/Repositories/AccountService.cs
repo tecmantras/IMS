@@ -39,7 +39,7 @@ namespace UserManagement.Services.Repositories
                         join am in _assignUserRepository.GetAll()
                         on u.Id equals am.UserId into ams
                         from am in ams.DefaultIfEmpty()
-                        where !u.IsDeleted && r.Name!="Manager" &&((SearchValue == null || (
+                        where !u.IsDeleted &&((SearchValue == null || (
                               (SearchValue != null && u.FirstName.Contains(SearchValue))
                               ||(SearchValue != null && u.LastName.Contains(SearchValue)) 
                              ||(SearchValue != null && r.Name.Contains(SearchValue)) ||
@@ -90,6 +90,7 @@ namespace UserManagement.Services.Repositories
                              AssignedManagerId = u.AssignedManagerId,
                              AssignedHrId = u.AssignedHrId,
                              Gender = u.Gender
+                             
                          };
             pagedList.userResponses = await result.Skip((Page - 1) * PageSize)
              .Take(PageSize)
@@ -371,17 +372,17 @@ namespace UserManagement.Services.Repositories
                 throw;
             }
         }
-        public async Task<ResponseMessageViewModel> UpdateManager(string ManagerId,string NewManagerId)
+        public async Task<ResponseMessageViewModel> UpdateManager(UpdateManagerViewModel updateManager)
         {
             try
             {
-                var users = await _assignUserRepository.GetAll().Where(x => (x.AssignedManagerId == ManagerId && x.IsActive == false))
+                var users = await _assignUserRepository.GetAll().Where(x => (x.AssignedManagerId == updateManager.ManagerId && x.IsActive == false))
                 .ToListAsync();
                 if (users.Any())
                 {
                     foreach (var updateuser in users)
                     {
-                        updateuser.AssignedManagerId = NewManagerId;
+                        updateuser.AssignedManagerId = updateManager.NewManagerId;
                         updateuser.IsActive = true;
                         _ = _assignUserRepository.Update(updateuser);
                         _ = _unitOfWork.commit();
@@ -418,7 +419,8 @@ namespace UserManagement.Services.Repositories
                          on ur.RoleId equals r.Id
                          //join am in _assignUserRepository.GetAll()
                          //on u.Id equals am.UserId
-                         where (r.Name == UserRole.Manager && u.IsActive == true) && ((SearchValue == null || (
+                         //&& u.IsActive == true
+                         where (r.Name == UserRole.Manager ) && ((SearchValue == null || (
                         (SearchValue != null && u.FirstName.Contains(SearchValue)) ||
                         (SearchValue != null && u.LastName.Contains(SearchValue)) ||
                         (SearchValue != null && u.Email.Contains(SearchValue)) ||

@@ -20,7 +20,7 @@ namespace UserManagement.Services.IRepositories
         Task<List<UserResponseViewModel?>> GetUserByDepartmentIdAsync(int departmentId);
         Task<bool> CheckAssignUsersByManager(string ManagerId);
         Task<bool> CheckAssignUsersByHrId(string HrId);
-        Task<ResponseMessageViewModel> UpdateManager(string ManagerId, string NewManagerId);
+        Task<ResponseMessageViewModel> UpdateManager(UpdateManagerViewModel updateManager);
         Task<PagedListUserViewModel> GetAllUserManager(int Page, int PageSize = 10, string? SearchValue = null);
     }
 }
