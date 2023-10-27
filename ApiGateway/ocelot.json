@@ -826,6 +826,42 @@
         }
       ],
       "DownstreamPathTemplate": "/api/TimeActivity/AddActivity"
+    },
+    {
+      "UpstreamPathTemplate": "/api/TimeActivity/UpdateActivity",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8009
+        }
+      ],
+      "DownstreamPathTemplate": "/api/TimeActivity/UpdateActivity"
+    },
+    {
+      "UpstreamPathTemplate": "/api/TimeActivity/GetLastActivity",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8009
+        }
+      ],
+      "DownstreamPathTemplate": "/api/TimeActivity/GetLastActivity"
+    },
+    {
+      "UpstreamPathTemplate": "/api/TimeActivity/ApproveUpdateTime",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8009
+        }
+      ],
+      "DownstreamPathTemplate": "/api/TimeActivity/ApproveUpdateTime"
     }
   ],
   "GlobalConfiguration": {

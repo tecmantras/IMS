@@ -70,6 +70,7 @@ namespace UserManagememet.Data.ViewModel
         public bool Status { get; set; }
         public string? AssignManagerEmail { get; set; }
         public string? AssignHREmail { get; set; }
+        public int? TotalUsers { get; set; }
     }
     public class LoginViewModel
     {
