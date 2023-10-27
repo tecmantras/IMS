@@ -876,11 +876,11 @@ namespace UserManagement.API.Controllers
         /// <param name="NewManagerId"></param>
         /// <returns>If Manager is not active then Assigned Manager is updated by new Manager</returns>
         [HttpPost("UpdateManager"), Authorize(Roles = "HR,Admin")]
-        public async Task<IActionResult> UpdateManager(string ManagerId, string NewManagerId)
+        public async Task<IActionResult> UpdateManager([FromBody] UpdateManagerViewModel updateManager)
         {
             try
             {
-                var users = await _accountService.UpdateManager(ManagerId, NewManagerId);
+                var users = await _accountService.UpdateManager(updateManager);
                 if (users.IsSuccess)
                 {
                     return new OkObjectResult(new ResponseMessageViewModel
