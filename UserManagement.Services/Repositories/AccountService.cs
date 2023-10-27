@@ -376,11 +376,11 @@ namespace UserManagement.Services.Repositories
         {
             try
             {
-                var users = await _assignUserRepository.GetAll().Where(x => (x.AssignedManagerId == updateManager.ManagerId && x.IsActive == false))
+                var users = await _assignUserRepository.GetAll().Where(x => (x.AssignedManagerId == updateManager.ManagerId && x.IsActive == true))
                 .ToListAsync();
                 if (users.Any())
                 {
-                    foreach (var updateuser in users)
+                    foreach(var updateuser in users)
                     {
                         updateuser.AssignedManagerId = updateManager.NewManagerId;
                         updateuser.IsActive = true;
