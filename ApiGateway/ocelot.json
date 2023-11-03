@@ -948,7 +948,7 @@
       "DownstreamPathTemplate": "/api/Policy/AddExpense"
     },
     {
-      "UpstreamPathTemplate": "/api/HrExpense/GetAllItems",
+      "UpstreamPathTemplate": "/api/HrExpense/GetItemsById",
       "UpstreamHttpMethod": [ "Get" ],
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
@@ -957,7 +957,7 @@
           "Port": 8011
         }
       ],
-      "DownstreamPathTemplate": "/api/Policy/GetAllItems"
+      "DownstreamPathTemplate": "/api/Policy/GetItemsById"
     },
     {
       "UpstreamPathTemplate": "/api/HrExpense/DeleteExpense",
