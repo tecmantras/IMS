@@ -934,6 +934,66 @@
         }
       ],
       "DownstreamPathTemplate": "/api/Policy/DeletePolicy"
+    },
+    {
+      "UpstreamPathTemplate": "/api/HrExpense/AddExpense",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8011
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Policy/AddExpense"
+    },
+    {
+      "UpstreamPathTemplate": "/api/HrExpense/GetAllItems",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8011
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Policy/GetAllItems"
+    },
+    {
+      "UpstreamPathTemplate": "/api/HrExpense/DeleteExpense",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8011
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Policy/DeleteExpense"
+    },
+    {
+      "UpstreamPathTemplate": "/api/HrExpense/UpdateExpense",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8011
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Policy/UpdateExpense"
+    },
+    {
+      "UpstreamPathTemplate": "/api/HrExpense/GetAllExpense",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8011
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Policy/GetAllExpense"
     }
   ],
   "GlobalConfiguration": {
