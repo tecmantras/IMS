@@ -32,6 +32,8 @@ namespace UserManagement.API.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IRepository<AssignUser> _assignUserRepository;
         private readonly IConfiguration _configuration;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly string baseUrl;
 
         public AccountController(IAccountService accountService, UserManager<User> userManager, IUnitOfWork unitOfWork, RoleManager<IdentityRole> roleManager, SignInManager<User> signInManager, IEmailHelper emailHelper, IConfiguration configuration)
         {
@@ -43,6 +45,7 @@ namespace UserManagement.API.Controllers
             _signInManager = signInManager;
             _emailHelper = emailHelper;
             _configuration = configuration;
+            baseUrl = _configuration["LeaveManagement:BaseUrl"];
         }
 
         [HttpPost("InsertRole")]
@@ -182,7 +185,7 @@ namespace UserManagement.API.Controllers
                                     var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                                     var ResetPasswordToken = await _userManager.GeneratePasswordResetTokenAsync(user);
                                     HttpClient client = new HttpClient();
-                                    var url = $"http://host.docker.internal:8005/api/UserLeaveBalance";
+                                    var url = $"{baseUrl}/UserLeaveBalance";
                                     UserLeaveBalanceViewModel viewModel = new UserLeaveBalanceViewModel
                                     {
                                         UserId = user.Id
@@ -950,5 +953,16 @@ namespace UserManagement.API.Controllers
             }
         }
 
+
+        /// <summary>
+        /// Get User Profile
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("GetUserProfile"), Authorize(Roles = "HR,Admin,Manager,Employee")]
+        public async Task<IActionResult> GetUserProfile()//(UserProfileViewModel userProfile)
+        {
+            
+            return new OkObjectResult( await _accountService.GetUserProfile());//(userProfile));
+        }
     }
 }

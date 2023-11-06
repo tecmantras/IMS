@@ -25,7 +25,7 @@ namespace SignInManagement.Data
                 HttpClient client = new HttpClient();
                 var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
                 string url = "http://host.docker.internal:8003/api/Account/Authenticate";
-                //string url = "http://192.168.1.66:5234/api/Account/Authenticate";
+                //string url = "http://localhost:5234/api/Account/Authenticate";
                 var response = await client.PostAsync(url, content);
                 if (response.IsSuccessStatusCode)
                 {

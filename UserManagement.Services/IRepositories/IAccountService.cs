@@ -22,5 +22,6 @@ namespace UserManagement.Services.IRepositories
         Task<bool> CheckAssignUsersByHrId(string HrId);
         Task<ResponseMessageViewModel> UpdateManager(UpdateManagerViewModel updateManager);
         Task<PagedListUserViewModel> GetAllUserManager(int Page, int PageSize = 10, string? SearchValue = null);
+        Task<ResponseMessageViewModel> GetUserProfile();//(UserProfileViewModel userProfileViewModel);
     }
 }

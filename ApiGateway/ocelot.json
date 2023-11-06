@@ -351,6 +351,18 @@
       ],
       "DownstreamPathTemplate": "/api/Account/UpdateManager"
     },
+    {
+      "UpstreamPathTemplate": "/api/Account/GetUserProfile",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "usermanagement.api",
+          "Port": 80
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Account/GetUserProfile"
+    },
     // Leave Management
     {
       "UpstreamPathTemplate": "/api/LeaveType",
