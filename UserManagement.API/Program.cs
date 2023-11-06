@@ -21,6 +21,9 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 
+
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddHostedService<SetupIdentityDataSeeder>();
 builder.Services.AddCors(op =>
 {

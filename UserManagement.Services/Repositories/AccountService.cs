@@ -1,7 +1,17 @@
 ﻿using Azure;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Data;
+using System.Net;
+using System.Net.Http.Headers;
+using System.Numerics;
+using System.Reflection;
 using System.Runtime.Intrinsics.Arm;
+using System.Security.Claims;
 using UserManagememet.Data.Constant;
 using UserManagememet.Data.Interface;
 using UserManagememet.Data.Model;
@@ -18,8 +28,10 @@ namespace UserManagement.Services.Repositories
         private readonly IRepository<AssignUser> _assignUserRepository;
         private readonly IRepository<IdentityRole> _roleRepository;
         private readonly IRepository<IdentityUserRole<string>> _userRoleRepository;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IConfiguration _configuration;
 
-        public AccountService(IUnitOfWork unitOfWork)
+        public AccountService(IUnitOfWork unitOfWork, IHttpContextAccessor httpContextAccessor,IConfiguration configuration)
         {
             _unitOfWork = unitOfWork;
             _userRepository = _unitOfWork.GetRepository<User>();
@@ -27,6 +39,8 @@ namespace UserManagement.Services.Repositories
             _assignUserRepository = _unitOfWork.GetRepository<AssignUser>();
             _roleRepository = _unitOfWork.GetRepository<IdentityRole>();
             _userRoleRepository = _unitOfWork.GetRepository<IdentityUserRole<string>>();
+            _httpContextAccessor = httpContextAccessor;
+            _configuration = configuration;
         }
         public async Task<PagedListUserViewModel> GetAllUserAsync(int Page, int PageSize = 10, string? SearchValue = null)
         {
@@ -39,10 +53,10 @@ namespace UserManagement.Services.Repositories
                         join am in _assignUserRepository.GetAll()
                         on u.Id equals am.UserId into ams
                         from am in ams.DefaultIfEmpty()
-                        where !u.IsDeleted &&((SearchValue == null || (
+                        where !u.IsDeleted && ((SearchValue == null || (
                               (SearchValue != null && u.FirstName.Contains(SearchValue))
-                              ||(SearchValue != null && u.LastName.Contains(SearchValue)) 
-                             ||(SearchValue != null && r.Name.Contains(SearchValue)) ||
+                              || (SearchValue != null && u.LastName.Contains(SearchValue))
+                             || (SearchValue != null && r.Name.Contains(SearchValue)) ||
                               (SearchValue != null && u.Department.Name.Contains(SearchValue)
                               ))))
                         select new UserResponseViewModel
@@ -90,7 +104,7 @@ namespace UserManagement.Services.Repositories
                              AssignedManagerId = u.AssignedManagerId,
                              AssignedHrId = u.AssignedHrId,
                              Gender = u.Gender
-                             
+
                          };
             pagedList.userResponses = await result.Skip((Page - 1) * PageSize)
              .Take(PageSize)
@@ -261,7 +275,7 @@ namespace UserManagement.Services.Repositories
                             on ur.RoleId equals r.Id
                             join am in _assignUserRepository.GetAll()
                             on u.Id equals am.UserId into ams
-                            from am in ams.DefaultIfEmpty() 
+                            from am in ams.DefaultIfEmpty()
                             orderby u.FirstName ascending
                             where am.AssignedHrId == userId || am.AssignedManagerId == userId && am.IsActive &&
                              (searchValue == null || (
@@ -380,7 +394,7 @@ namespace UserManagement.Services.Repositories
                 .ToListAsync();
                 if (users.Any())
                 {
-                    foreach(var updateuser in users)
+                    foreach (var updateuser in users)
                     {
                         updateuser.AssignedManagerId = updateManager.NewManagerId;
                         updateuser.IsActive = true;
@@ -411,7 +425,7 @@ namespace UserManagement.Services.Repositories
         public async Task<PagedListUserViewModel> GetAllUserManager(int Page, int PageSize = 10, string? SearchValue = null)
         {
             PagedListUserViewModel pagedList = new PagedListUserViewModel();
-            var assignuser = _assignUserRepository.GetAll().Where(x=> x.IsActive && !x.IsDeleted );
+            var assignuser = _assignUserRepository.GetAll().Where(x => x.IsActive && !x.IsDeleted);
             var users = (from u in _userRepository.GetAll()
                          join ur in _userRoleRepository.GetAll()
                          on u.Id equals ur.UserId
@@ -420,30 +434,30 @@ namespace UserManagement.Services.Repositories
                          //join am in _assignUserRepository.GetAll()
                          //on u.Id equals am.UserId
                          //&& u.IsActive == true
-                         where (r.Name == UserRole.Manager ) && ((SearchValue == null || (
+                         where (r.Name == UserRole.Manager) && ((SearchValue == null || (
                         (SearchValue != null && u.FirstName.Contains(SearchValue)) ||
                         (SearchValue != null && u.LastName.Contains(SearchValue)) ||
                         (SearchValue != null && u.Email.Contains(SearchValue)) ||
                         (SearchValue != null && r.Name.Contains(SearchValue)) ||
                         (SearchValue != null && u.Department.Name.Contains(SearchValue)
                         ))))
-                        orderby u.FirstName
+                         orderby u.FirstName
                          select new UserResponseViewModel
-                               {
-                                   UserId = u.Id,
-                                   FirstName = u.FirstName,
-                                   LastName = u.LastName,
-                                   Email = u.Email,
-                                   Phone = u.PhoneNumber,
-                                   Role = r.Name,
-                                   Department = u.Department.Name,
-                                   IsActive = u.IsActive,
-                                   Address = u.Address,
-                                   DOB = u.DOB.Value.ToString(ConstantData.DateFormat),
-                                   DOJ = u.JoiningDate.Value.ToString(ConstantData.DateFormat),
-                                   DepartmentId = u.DepartmentId,
-                                   Gender = u.Gender,
-                                   TotalUsers= assignuser.Where(x=>x.AssignedManagerId == u.Id).Count()
+                         {
+                             UserId = u.Id,
+                             FirstName = u.FirstName,
+                             LastName = u.LastName,
+                             Email = u.Email,
+                             Phone = u.PhoneNumber,
+                             Role = r.Name,
+                             Department = u.Department.Name,
+                             IsActive = u.IsActive,
+                             Address = u.Address,
+                             DOB = u.DOB.Value.ToString(ConstantData.DateFormat),
+                             DOJ = u.JoiningDate.Value.ToString(ConstantData.DateFormat),
+                             DepartmentId = u.DepartmentId,
+                             Gender = u.Gender,
+                             TotalUsers = assignuser.Where(x => x.AssignedManagerId == u.Id).Count()
 
                          });
             pagedList.userResponses = await users.Skip((Page - 1) * PageSize)
@@ -453,5 +467,121 @@ namespace UserManagement.Services.Repositories
 
         }
 
+
+        public async Task<ResponseMessageViewModel> GetUserProfile()//(UserProfileViewModel userProfileViewModel)
+        {
+            try
+            {
+                var userId = _httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                //List<UserProfileViewModel> listUser = new List<UserProfileViewModel>();
+                HttpClient client = new HttpClient();
+                string authorizationHeader = _httpContextAccessor.HttpContext.Request.Headers["Authorization"];
+                string[] parts = authorizationHeader.Split(' ');
+                string token = parts[1];
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                var baseUrl = _configuration["LeaveManagement:BaseUrl"];
+                //string url = $"http://localhost:5233/api/UserLeave/GetAllLeavesByUserId/{userId}?pageSize={int.MaxValue}&page=1";
+                string url = $"{baseUrl}/UserLeave/GetAllLeavesByUserId/{userId}?pageSize={int.MaxValue}&page=1";
+
+                var response = await client.GetAsync(url);
+                if (response.IsSuccessStatusCode)
+                {
+                    var userResponse = await response.Content.ReadAsStringAsync();
+                    var rootobject = JsonConvert.DeserializeObject<LeaveList>(userResponse);
+
+                    if (rootobject.isSuccess)
+                    {
+                        var allLeaves = rootobject.data.listResponse;
+
+                        UserDetails userDetails = new UserDetails();
+                        var leaves= allLeaves.OrderByDescending(x=> x.appliedDate).Take(5).ToList();
+                        userDetails.Leaves = leaves;
+
+                        var users = from u in _userRepository.GetAll().Include(x => x.Department)//users
+                                    join ur in _userRoleRepository.GetAll()
+                                    on u.Id equals ur.UserId
+                                    join r in _roleRepository.GetAll()
+                                    on ur.RoleId equals r.Id
+                                    join am in _assignUserRepository.GetAll()
+                                    on u.Id equals am.UserId into ams
+                                    from am in ams.DefaultIfEmpty()
+                                    where u.Id == userId && !u.IsDeleted
+                                    select new UserProfileViewModel
+                                    {
+                                        UserId = u.Id,
+                                        FirstName = u.FirstName,
+                                        LastName = u.LastName,
+                                        Email = u.Email,
+                                        Phone = u.PhoneNumber,
+                                        Role = r.Name,
+                                        Department = u.Department.Name,
+                                        AssignedManagerId = am.AssignedManagerId,
+                                        AssignedHrId = am.AssignedHrId,
+                                        IsActive = u.IsActive,
+                                        DOJ = u.JoiningDate.Value.ToString(),
+                                        DepartmentId = u.DepartmentId,
+                                        Address = u.Address,
+                                        DOB = u.DOB.ToString(),
+                                        Gender = u.Gender,
+                                        AssignManagerEmail = am.AssignedManager.ToString(),
+
+                                    };
+
+                        var result = await (from u in users
+                                            join Man in _userRepository.GetAll()
+                                  on u.AssignedManagerId equals Man.Id into amd
+                                            from Man in amd.DefaultIfEmpty()
+                                            join hr in _userRepository.GetAll()
+                                            on u.AssignedHrId equals hr.Id into hrs
+                                            from hr in hrs.DefaultIfEmpty()
+                                            select new UserProfileViewModel
+                                            {
+                                                UserId = u.UserId,
+                                                FirstName = u.FirstName,
+                                                LastName = u.LastName,
+                                                Email = u.Email,
+                                                IsActive = u.IsActive,
+                                                DOB = u.DOB.ToString(),
+                                                DOJ = u.DOJ.ToString(),
+                                                DepartmentId = u.DepartmentId,
+                                                Gender = u.Gender,
+                                                Address = u.Address,
+                                                Phone = u.Phone,
+                                                Role = u.Role,
+                                                Department = u.Department,
+                                                AssignManager = string.IsNullOrEmpty(Man.FirstName) ? null : Man.FirstName + " " + Man.LastName,
+                                                AssignHR = string.IsNullOrEmpty(hr.FirstName) ? null : hr.FirstName + " " + hr.LastName,
+                                                AssignedManagerId = u.AssignedManagerId,
+                                                AssignedHrId = u.AssignedHrId,
+                                                AssignManagerEmail = Man.Email,
+                                                AssignHREmail = hr.Email
+                                            }).FirstOrDefaultAsync();
+
+                        userDetails.Profile = result ;
+                        return new ResponseMessageViewModel
+                        {
+                            Data = userDetails //leaves ,
+                        };
+                    }
+                }
+
+
+                return new ResponseMessageViewModel
+                {
+                    Data = null,
+                    Message = "error"
+                };
+
+            }
+            catch (Exception ex)
+            {
+                return new ResponseMessageViewModel
+                {
+                    Data = ex.Message,
+                };
+            }
+
+        }
     }
 }
