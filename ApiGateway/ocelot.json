@@ -1005,7 +1005,7 @@
           "Port": 8011
         }
       ],
-      "DownstreamPathTemplate": "/api/Policy/GetAllExpense"
+      "DownstreamPathTemplate": "/api/HrExpense/GetAllExpense"
     }
   ],
   "GlobalConfiguration": {
