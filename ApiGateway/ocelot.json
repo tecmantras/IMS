@@ -1006,6 +1006,18 @@
         }
       ],
       "DownstreamPathTemplate": "/api/HrExpense/GetAllExpense"
+    },
+    {
+      "UpstreamPathTemplate": "/api/HrExpense/DeleteItem",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 8011
+        }
+      ],
+      "DownstreamPathTemplate": "/api/HrExpense/DeleteItem"
     }
   ],
   "GlobalConfiguration": {
