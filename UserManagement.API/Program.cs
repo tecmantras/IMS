@@ -9,6 +9,7 @@ using UserManagement.Services.IRepositories;
 using UserManagement.Services.Repositories;
 using SignInManagement.Data;
 using UserManagememet.Data.Seeder;
+using System.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -55,10 +56,23 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
 //var connectionstring = $"Data Source={dbhost};Initial Catalog={dbName};User ID=sa;Password={dbPassword};Trusted_Connection=False; Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
 //builder.Services.AddDbContext<UserManangementDBContext>(option =>option.UseSqlServer(connectionstring));
 
-builder.Services.AddDbContext<UserManangementDBContext>(option =>
-{
-    option.UseSqlServer(builder.Configuration.GetConnectionString("userManagementDB"));
-});
+//builder.Services.AddDbContext<UserManangementDBContext>(option =>
+//{
+//    option.UseMySql(builder.Configuration.GetConnectionString("userManagementDB"));
+//});
+
+var serverVersion = new MySqlServerVersion(new Version(8, 0, 7));
+//builder.Services.AddDbContext<UserManangementDBContext>(options =>
+//       options.UseMySql(Configuration.GetConnectionString("DefaultConnection")));
+
+
+builder.Services.AddDbContext<UserManangementDBContext>(
+            dbContextOptions => dbContextOptions
+                .UseMySql(builder.Configuration.GetConnectionString("userManagementDB"), serverVersion)
+                .LogTo(Console.WriteLine, LogLevel.Information)
+                .EnableSensitiveDataLogging()
+                .EnableDetailedErrors()
+        );
 
 builder.Services.AddControllers().AddJsonOptions(x =>
                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
@@ -74,8 +88,8 @@ var app = builder.Build();
 app.UseCors("corpolicy");
 // Configure the HTTP request pipeline.
 
-    app.UseSwagger();
-    app.UseSwaggerUI();
+app.UseSwagger();
+app.UseSwaggerUI();
 
 
 //app.UseHttpsRedirection();
